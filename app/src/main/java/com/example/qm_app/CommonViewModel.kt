@@ -8,11 +8,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class CommonViewModel @Inject constructor() :
-    ViewModel() {
-
+class CommonViewModel @Inject constructor() : ViewModel() {
     private var _navController = MutableStateFlow<NavHostController?>(null)
-
     val navController = _navController.asStateFlow()
 
     fun initializeNavController(navController: NavHostController) {
@@ -25,14 +22,12 @@ class CommonViewModel @Inject constructor() :
 
     fun navToMainScreen(tab: String) {
         _bottomNavBarTabKey.value = tab
-        navController.value!!.navigate("main") {
-            popUpTo("main") {}
-            launchSingleTop = true
+        if (navController.value?.currentBackStackEntry?.destination?.route != "main") {
+            navController.value!!.navigate("main") {
+                popUpTo("main") {}
+                launchSingleTop = true
+            }
         }
-    }
-
-    fun updateBottomNavBarTab(tab: String) {
-        _bottomNavBarTabKey.value = tab
     }
 }
 

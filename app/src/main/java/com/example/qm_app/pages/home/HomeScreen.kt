@@ -24,12 +24,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController, paddingValues: PaddingValues) {
+    val homeViewModel = hiltViewModel<HomeViewModel>()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     Scaffold(
@@ -49,7 +50,7 @@ fun HomeScreen(navController: NavController, paddingValues: PaddingValues) {
             )
         }
     ) { innerPadding ->
-        val homeViewModel: HomeViewModel = viewModel()
+
         val listState = rememberLazyListState(
             initialFirstVisibleItemIndex = homeViewModel.scrollState.value.firstVisibleItemIndex,
             initialFirstVisibleItemScrollOffset = homeViewModel.scrollState.value.firstVisibleItemScrollOffset,

@@ -24,7 +24,7 @@ val items = listOf(
 )
 
 @Composable
-fun MainScreen() {
+fun MainScreen(navController: NavController) {
     val commonViewModel = QmApplication.commonViewModel
     val bottomNavBarTab = commonViewModel.bottomNavBarTab.collectAsState()
 
@@ -38,11 +38,10 @@ fun MainScreen() {
                 tabKey = bottomNavBarTab.value,
                 items = items,
             ) { tab ->
-                commonViewModel.updateBottomNavBarTab(tab)
+                commonViewModel.navToMainScreen(tab)
             }
         }
     ) { paddingValues ->
-        val navController = commonViewModel.navController.value as NavController
         when (bottomNavBarTab.value) {
             Screen.Home.route -> HomeScreen(navController, paddingValues)
             Screen.Favorite.route -> FavoriteScreen(navController)

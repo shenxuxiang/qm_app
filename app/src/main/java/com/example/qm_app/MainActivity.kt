@@ -46,10 +46,10 @@ class MainActivity : ComponentActivity() {
                 Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
                     NavHost(startDestination = "main", navController = navController) {
                         composable(route = "main") {
-                            MainScreen()
+                            MainScreen(navController)
                         }
                         composable(route = "goods") {
-                            GoodsScreen()
+                            GoodsScreen(navController)
                         }
                         composable(
                             route = "user?id={id}",
@@ -64,6 +64,7 @@ class MainActivity : ComponentActivity() {
                             )
                         ) { backStackEntry ->
                             UserScreen(
+                                navController,
                                 id = backStackEntry.arguments!!.getString("id", "")
                             )
                         }
