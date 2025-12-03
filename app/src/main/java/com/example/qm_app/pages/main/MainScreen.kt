@@ -8,7 +8,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
 import com.example.qm_app.common.QmApplication
 import com.example.qm_app.components.BottomNavBar
 import com.example.qm_app.pages.cart.CartScreen
@@ -24,7 +23,7 @@ val items = listOf(
 )
 
 @Composable
-fun MainScreen(navController: NavController) {
+fun MainScreen() {
     val commonViewModel = QmApplication.commonViewModel
     val bottomNavBarTab = commonViewModel.bottomNavBarTab.collectAsState()
 
@@ -43,10 +42,10 @@ fun MainScreen(navController: NavController) {
         }
     ) { paddingValues ->
         when (bottomNavBarTab.value) {
-            Screen.Home.route -> HomeScreen(navController, paddingValues)
-            Screen.Favorite.route -> FavoriteScreen(navController)
-            Screen.Cart.route -> CartScreen(navController)
-            Screen.Profile.route -> ProfileScreen(navController)
+            Screen.Home.route -> HomeScreen(paddingValues)
+            Screen.Favorite.route -> FavoriteScreen()
+            Screen.Cart.route -> CartScreen()
+            Screen.Profile.route -> ProfileScreen()
         }
     }
 }

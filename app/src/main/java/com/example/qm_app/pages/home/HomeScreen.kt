@@ -25,13 +25,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.navigation.NavController
+import com.example.qm_app.common.QmApplication
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController, paddingValues: PaddingValues) {
+fun HomeScreen(paddingValues: PaddingValues) {
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val backStackEntry = checkNotNull(QmApplication.navController.currentBackStackEntry)
+    val savedStateHandle = backStackEntry.savedStateHandle
 
     Scaffold(
         modifier = Modifier
@@ -52,8 +54,9 @@ fun HomeScreen(navController: NavController, paddingValues: PaddingValues) {
     ) { innerPadding ->
 
         val listState = rememberLazyListState(
-            initialFirstVisibleItemIndex = homeViewModel.scrollState.value.firstVisibleItemIndex,
-            initialFirstVisibleItemScrollOffset = homeViewModel.scrollState.value.firstVisibleItemScrollOffset,
+            initialFirstVisibleItemIndex = savedStateHandle["firstVisibleItemIndex"] ?: 0,
+            initialFirstVisibleItemScrollOffset = savedStateHandle["firstVisibleItemScrollOffset"]
+                ?: 0,
         )
 
         // 实时监听 firstVisibleItemIndex && firstVisibleItemScrollOffset 变化
@@ -62,7 +65,9 @@ fun HomeScreen(navController: NavController, paddingValues: PaddingValues) {
                 // 如果只监听一个数据，则直接返回该数据即可，如果是多个数据，使用 listOf
                 listOf(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset)
             }.collect { resp ->
-                homeViewModel.updateScrollState(itemIndex = resp[0], offset = resp[1])
+                savedStateHandle["firstVisibleItemIndex"] = resp[0]
+                savedStateHandle["firstVisibleItemScrollOffset"] = resp[1]
+//                homeViewModel.updateScrollState(itemIndex = resp[0], offset = resp[1])
             }
         }
 
@@ -87,7 +92,7 @@ fun HomeScreen(navController: NavController, paddingValues: PaddingValues) {
                         .padding(vertical = 8.dp, horizontal = 12.dp)
                         .clickable(onClick = {
                             if (index == 11) {
-                                navController.navigate("user?id=12345")
+                                QmApplication.navController.navigate("user?id=12345")
                             }
                         })
                 ) {

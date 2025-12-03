@@ -1,8 +1,7 @@
 package com.example.qm_app.pages.cart
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
 
 @Composable
-fun CartScreen(navController: NavController) {
+fun CartScreen() {
 }

@@ -23,14 +23,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.example.qm_app.common.QmApplication
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserScreen(navController: NavController, id: String) {
+fun UserScreen(id: String) {
     val commonViewModel = QmApplication.commonViewModel
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val backStackEntry =
+        checkNotNull(QmApplication.navController.currentBackStackEntry) { "The NavController BackStackEntry Is Null" }
+    val savedStateHandle = backStackEntry.savedStateHandle
+
+    println("user screen ==========================: ${savedStateHandle["CallbackData"] ?: ""}")
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
@@ -53,11 +58,11 @@ fun UserScreen(navController: NavController, id: String) {
                         modifier = Modifier
                             .size(24.dp)
                             .clickable(onClick = {
-                                navController.previousBackStackEntry?.savedStateHandle?.set(
+                                QmApplication.navController.previousBackStackEntry?.savedStateHandle?.set(
                                     "ResponseData",
                                     "Im Ok"
                                 )
-                                navController.popBackStack()
+                                QmApplication.navController.popBackStack()
                             })
                     )
                 }
@@ -91,7 +96,8 @@ fun UserScreen(navController: NavController, id: String) {
 
             Spacer(modifier = Modifier.height(12.dp))
             Button(onClick = {
-                commonViewModel.navController.value!!.navigate("goods")
+                savedStateHandle.set("CallbackData", "Hello World")
+                QmApplication.navController.navigate("goods")
             }) {
                 Text("To Goods")
             }

@@ -39,17 +39,16 @@ class MainActivity : ComponentActivity() {
             Qm_appTheme {
                 val navController = rememberNavController()
                 val commonViewModel = hiltViewModel<CommonViewModel>()
-
+                QmApplication.navController = navController
                 QmApplication.commonViewModel = commonViewModel
-                commonViewModel.initializeNavController(navController)
 
                 Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
                     NavHost(startDestination = "main", navController = navController) {
                         composable(route = "main") {
-                            MainScreen(navController)
+                            MainScreen()
                         }
                         composable(route = "goods") {
-                            GoodsScreen(navController)
+                            GoodsScreen()
                         }
                         composable(
                             route = "user?id={id}",
@@ -64,7 +63,6 @@ class MainActivity : ComponentActivity() {
                             )
                         ) { backStackEntry ->
                             UserScreen(
-                                navController,
                                 id = backStackEntry.arguments!!.getString("id", "")
                             )
                         }

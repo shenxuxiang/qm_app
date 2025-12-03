@@ -20,12 +20,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.qm_app.common.QmApplication
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GoodsScreen(navController: NavController) {
+fun GoodsScreen() {
     val commonViewModel = QmApplication.commonViewModel
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     Scaffold(
