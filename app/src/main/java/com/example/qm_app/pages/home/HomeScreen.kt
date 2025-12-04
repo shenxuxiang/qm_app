@@ -32,9 +32,6 @@ import com.example.qm_app.common.QmApplication
 fun HomeScreen(paddingValues: PaddingValues) {
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    val backStackEntry = checkNotNull(QmApplication.navController.currentBackStackEntry)
-    val savedStateHandle = backStackEntry.savedStateHandle
-
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -54,9 +51,8 @@ fun HomeScreen(paddingValues: PaddingValues) {
     ) { innerPadding ->
 
         val listState = rememberLazyListState(
-            initialFirstVisibleItemIndex = savedStateHandle["firstVisibleItemIndex"] ?: 0,
-            initialFirstVisibleItemScrollOffset = savedStateHandle["firstVisibleItemScrollOffset"]
-                ?: 0,
+            initialFirstVisibleItemIndex = homeViewModel.scrollState.value.firstVisibleItemIndex,
+            initialFirstVisibleItemScrollOffset = homeViewModel.scrollState.value.firstVisibleItemScrollOffset,
         )
 
         // 实时监听 firstVisibleItemIndex && firstVisibleItemScrollOffset 变化
@@ -65,9 +61,7 @@ fun HomeScreen(paddingValues: PaddingValues) {
                 // 如果只监听一个数据，则直接返回该数据即可，如果是多个数据，使用 listOf
                 listOf(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset)
             }.collect { resp ->
-                savedStateHandle["firstVisibleItemIndex"] = resp[0]
-                savedStateHandle["firstVisibleItemScrollOffset"] = resp[1]
-//                homeViewModel.updateScrollState(itemIndex = resp[0], offset = resp[1])
+                homeViewModel.updateScrollState(itemIndex = resp[0], offset = resp[1])
             }
         }
 

@@ -45,6 +45,9 @@ android {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
+    implementation("me.onebone:toolbar-compose:2.3.5")
     implementation("com.google.dagger:hilt-android:2.50")
     kapt("com.google.dagger:hilt-android-compiler:2.50")  // 注解处理器
     implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
