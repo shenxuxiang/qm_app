@@ -18,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -32,6 +33,13 @@ import com.example.qm_app.common.QmApplication
 fun HomeScreen(paddingValues: PaddingValues) {
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+
+    DisposableEffect(Unit) {
+        println("==============================mounted")
+        onDispose {
+            println("==============================will unmount")
+        }
+    }
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
