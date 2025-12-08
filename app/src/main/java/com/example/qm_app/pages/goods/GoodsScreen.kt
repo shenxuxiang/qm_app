@@ -18,6 +18,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,6 +50,10 @@ fun GoodsScreen() {
         initialFirstVisibleItemScrollOffset = savedStateHandle["initialFirstVisibleItemScrollOffset"]
             ?: 0
     )
+
+    val categories =
+        listOf("推荐", "科技", "体育", "娱乐", "财经", "汽车", "房产", "教育")
+    val tabIndex = remember { mutableIntStateOf(0) }
 
     LaunchedEffect(Unit) {
         snapshotFlow { toolbarState.height }.collect {
@@ -84,6 +90,7 @@ fun GoodsScreen() {
                 .navigationBarsPadding(),
             scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
             toolbar = {
+
                 Image(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -106,7 +113,10 @@ fun GoodsScreen() {
                         .alpha(if (scaffoldState.toolbarState.progress >= 0.7) 0f else 1 - scaffoldState.toolbarState.progress / 0.7f),
                     contentAlignment = Alignment.Center
                 ) {
-                    GoodsCategory()
+                    GoodsCategory(
+                        categories = categories,
+                        value = tabIndex.value,
+                        onChanged = { tabIndex.value = it })
                 }
             }
         ) {
