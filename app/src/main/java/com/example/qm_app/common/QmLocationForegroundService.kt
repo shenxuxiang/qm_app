@@ -103,21 +103,15 @@ class QmLocationForegroundService : Service() {
         notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
         val channel = NotificationChannel(
-            CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH // 使用HIGH重要性级别
-        ).apply {
-            // 设置锁屏可见性
-            lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-            // 设置绕过免打扰模式
-            setBypassDnd(true)
-        }
+            CHANNEL_ID,
+            CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_HIGH // 使用HIGH重要性级别
+        )
+        // 设置手机在锁屏状态下仍然可以看到通知
+        // VISIBILITY_PUBLIC-展示全部信息、VISIBILITY_PRIVATE-只展示标题不展示详细信息
+        channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
 
-        notificationManager.createNotificationChannel(
-            NotificationChannel(
-                CHANNEL_ID,
-                CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_HIGH
-            )
-        );
+        notificationManager.createNotificationChannel(channel)
 
         // 调用 startForeground() 后，表示着当前服务将成为一个前台服务
         startForeground(NOTIFY_ID, createNotification("开始跟踪用户的运动轨迹"))
