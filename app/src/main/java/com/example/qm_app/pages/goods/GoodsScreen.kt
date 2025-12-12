@@ -16,11 +16,14 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshState
+import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -30,7 +33,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.qm_app.R
 import com.example.qm_app.common.QmApplication
-import com.example.qm_app.pages.favorite.components.GoodsCategory
+import com.example.qm_app.components.GoodsCategory
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
@@ -53,28 +58,35 @@ fun GoodsScreen() {
 
     val categories =
         listOf("推荐", "科技", "体育", "娱乐", "财经", "汽车", "房产", "教育")
-    val tabIndex = remember { mutableIntStateOf(0) }
+    val tabIndex = remember { mutableIntStateOf(savedStateHandle["tabIndex"] ?: 0) }
 
-    LaunchedEffect(Unit) {
-        snapshotFlow { toolbarState.height }.collect {
-            savedStateHandle["toolbarHeight"] = it
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        snapshotFlow {
-            listOf(
-                listState.firstVisibleItemIndex,
+    DisposableEffect(Unit) {
+        onDispose {
+            savedStateHandle["tabIndex"] = tabIndex.value
+            savedStateHandle["toolbarHeight"] = toolbarState.height
+            savedStateHandle["firstVisibleItemIndex"] = listState.firstVisibleItemIndex
+            savedStateHandle["firstVisibleItemScrollOffset"] =
                 listState.firstVisibleItemScrollOffset
-            )
-        }.collect {
-            savedStateHandle["firstVisibleItemIndex"] = it[0]
-            savedStateHandle["firstVisibleItemScrollOffset"] = it[1]
         }
     }
 
+    val isRefreshing = remember { mutableStateOf(false) }
+    val refreshState = remember { PullToRefreshState() }
+    val coroutineScope = rememberCoroutineScope()
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .pullToRefresh(
+                state = refreshState,
+                onRefresh = {
+                    isRefreshing.value = true
+                    coroutineScope.launch {
+                        delay(2000)
+                        isRefreshing.value = false
+                    }
+                },
+                isRefreshing = isRefreshing.value,
+            ),
         contentAlignment = Alignment.TopStart,
     ) {
         Image(
@@ -90,7 +102,6 @@ fun GoodsScreen() {
                 .navigationBarsPadding(),
             scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
             toolbar = {
-
                 Image(
                     modifier = Modifier
                         .fillMaxWidth()

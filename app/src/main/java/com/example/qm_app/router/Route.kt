@@ -34,8 +34,14 @@ sealed class Route(
         }
     }
 
+    /**
+     * 主页
+     * */
     object MainScreen : Route(route = "main", content = { MainScreen() })
 
+    /**
+     * 用户
+     * */
     object UserScreen : Route(
         route = "user?id={id}",
         arguments = listOf(
@@ -52,5 +58,8 @@ sealed class Route(
         }
     )
 
+    /**
+     * 商品
+     * */
     object GoodsScreen : Route(route = "goods", content = { GoodsScreen() })
 }

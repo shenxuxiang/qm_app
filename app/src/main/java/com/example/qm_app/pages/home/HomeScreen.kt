@@ -18,7 +18,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -32,14 +31,9 @@ import com.example.qm_app.common.QmApplication
 @Composable
 fun HomeScreen(paddingValues: PaddingValues) {
     val homeViewModel = hiltViewModel<HomeViewModel>()
+    val uiState = homeViewModel.uiState
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
-    DisposableEffect(Unit) {
-        println("==============================mounted")
-        onDispose {
-            println("==============================will unmount")
-        }
-    }
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -56,11 +50,11 @@ fun HomeScreen(paddingValues: PaddingValues) {
                 ),
             )
         }
-    ) { innerPadding ->
 
+    ) { innerPadding ->
         val listState = rememberLazyListState(
-            initialFirstVisibleItemIndex = homeViewModel.scrollState.value.firstVisibleItemIndex,
-            initialFirstVisibleItemScrollOffset = homeViewModel.scrollState.value.firstVisibleItemScrollOffset,
+            initialFirstVisibleItemIndex = uiState.scrollState.value.firstVisibleItemIndex,
+            initialFirstVisibleItemScrollOffset = uiState.scrollState.value.firstVisibleItemScrollOffset,
         )
 
         // 实时监听 firstVisibleItemIndex && firstVisibleItemScrollOffset 变化

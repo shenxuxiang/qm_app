@@ -1,4 +1,4 @@
-package com.example.qm_app.pages.favorite.components
+package com.example.qm_app.components
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.VectorConverter
@@ -32,6 +32,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -58,6 +59,7 @@ fun GoodsCategory(
 
     LaunchedEffect(tabIndex) {
         if (tabIndex != propsValue.value) propsOnChanged.value?.invoke(tabIndex)
+        delay(100)
         // 当前 Tab 的宽度
         val tabWidth = tabItemWidthList[tabIndex]
         // 当前 Tab 距离容器左侧的距离，subList(start, end) 包含开始不包含结束

@@ -58,7 +58,10 @@ fun MainScreen() {
             }
         }
     ) { paddingValues ->
-        HorizontalPager(state = state, pageSize = PageSize.Fill) { tab ->
+        HorizontalPager(
+            state = state,
+            pageSize = PageSize.Fill,
+        ) { tab ->
             when (tab) {
                 0 -> HomeScreen(paddingValues)
                 1 -> FavoriteScreen()

@@ -45,11 +45,13 @@ android {
 }
 
 dependencies {
+    implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
     implementation("me.onebone:toolbar-compose:2.3.5")
     implementation("com.google.dagger:hilt-android:2.50")
-    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.compose.ui.geometry)
     kapt("com.google.dagger:hilt-android-compiler:2.50")  // 注解处理器
     implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
     implementation("androidx.navigation:navigation-compose:2.9.6")
