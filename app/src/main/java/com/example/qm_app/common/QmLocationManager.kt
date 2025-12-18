@@ -1,4 +1,4 @@
-package com.example.testactivity
+package com.example.qm_app.common
 
 import android.content.Context
 import android.content.Context.LOCATION_SERVICE
@@ -25,46 +25,56 @@ class QmLocationManager(private val context: Context) {
      * 获取当前用户位置
      * */
     @RequiresPermission(allOf = [ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION])
-    fun getCurrentLocation(block: (location: Location) -> Unit) {
-        lateinit var locationListener: LocationListener
-
-        val provider = if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            LocationManager.GPS_PROVIDER
-        } else {
-            LocationManager.NETWORK_PROVIDER
-        }
+    fun getCurrentLocation(
+        block: (location: Location) -> Unit,
+        onFailure: ((t: Exception) -> Unit)?,
+    ) {
+        var locationListenerGPS: LocationListener? = null
+        var locationListenerNETWORK: LocationListener? = null
 
         val handler = Handler(Looper.getMainLooper())
-        val timerTask = Runnable {
+        val timeoutTask = Runnable {
             // 取消原来的监听，再绑定新的监听
-            locationManager.removeUpdates(locationListener)
-            locationManager.requestLocationUpdates(
-                LocationManager.NETWORK_PROVIDER,
-                1000L,
-                0f,
-                locationListener
-            )
+            locationManager.removeUpdates(locationListenerGPS!!)
+            locationManager.removeUpdates(locationListenerNETWORK!!)
+
+            onFailure?.let {
+                it(RuntimeException("Get Location Timeout"))
+            }
         }
 
-        locationListener = LocationListener { location ->
+        locationListenerGPS = LocationListener { location ->
             // 取消对 requestLocationUpdates 的监听，这里只需要触发一次就行了。
-            locationManager.removeUpdates(locationListener)
+            locationManager.removeUpdates(locationListenerGPS!!)
+            locationManager.removeUpdates(locationListenerNETWORK!!)
             // 取消定时任务，避免重复执行
-            handler.removeCallbacks(timerTask)
+            handler.removeCallbacks(timeoutTask)
+            block(location)
+        }
+
+        locationListenerNETWORK = LocationListener { location ->
+            // 取消对 requestLocationUpdates 的监听，这里只需要触发一次就行了。
+            locationManager.removeUpdates(locationListenerGPS!!)
+            locationManager.removeUpdates(locationListenerNETWORK!!)
+            // 取消定时任务，避免重复执行
+            handler.removeCallbacks(timeoutTask)
             block(location)
         }
 
         locationManager.requestLocationUpdates(
-            provider,
+            LocationManager.GPS_PROVIDER,
+            0,
+            0f,
+            locationListenerGPS
+        )
+        locationManager.requestLocationUpdates(
+            LocationManager.NETWORK_PROVIDER,
             1000L,
             0f,
-            locationListener
+            locationListenerNETWORK
         )
 
-        // 只针对采用 GPS_PROVIDER 模式的定位，因为在有些情况下，如果用户处于静止状态时，GPS 定位可能一致不返回结果。
-        if (provider == LocationManager.GPS_PROVIDER) {
-            handler.postDelayed(timerTask, 6000)
-        }
+        handler.postDelayed(timeoutTask, 6000)
     }
 
     /**

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">60.169.69.3:30056</domain> <!-- 替换为你的域名 -->
+        <domain includeSubdomains="true">60.169.69.3:30066</domain> <!-- 替换为你的域名 -->
+    </domain-config>
+    <!-- 允许所有 HTTP（仅限调试环境） -->
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

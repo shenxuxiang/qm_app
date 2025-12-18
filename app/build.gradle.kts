@@ -24,12 +24,19 @@ android {
     }
 
     buildTypes {
+        debug {
+            // 确保 BuildConfig.DEBUG 在调试模式下为 true
+            // 这行配置不是必须的，但显式声明更清晰，有助于确保类被生成
+            buildConfigField("boolean", "DEBUG", "true")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // 2. 为 release 构建类型也配置一个 DEBUG 字段，值为 false
+            buildConfigField("boolean", "DEBUG", "false")
         }
     }
     compileOptions {
@@ -41,10 +48,13 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
 dependencies {
+    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
     implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
@@ -52,6 +62,7 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.50")
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.compose.ui.geometry)
+    implementation(libs.androidx.room.ktx)
     kapt("com.google.dagger:hilt-android-compiler:2.50")  // 注解处理器
     implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
     implementation("androidx.navigation:navigation-compose:2.9.6")

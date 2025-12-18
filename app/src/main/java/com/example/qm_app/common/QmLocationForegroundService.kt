@@ -1,4 +1,4 @@
-package com.example.testactivity
+package com.example.qm_app.common
 
 import android.app.Notification
 import android.app.NotificationChannel
