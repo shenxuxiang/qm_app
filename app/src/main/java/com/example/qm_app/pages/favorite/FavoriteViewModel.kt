@@ -14,10 +14,19 @@ class FavoriteViewModel @Inject constructor() : ViewModel() {
     val uiState = _uiState.asStateFlow()
     private val repository = Repository()
 
-    suspend fun getBannerList(body: Any) {
+    suspend fun getBannerList(body: Map<String, Any>) {
         try {
-            val resp = repository.getBannerList(body)
+            val resp = repository.queryBannerList(body)
             _uiState.update { it.copy(bannerList = resp.data) }
+        } catch (exception: Exception) {
+            LogUntil.d(msg = exception.message!!)
+        }
+    }
+
+    suspend fun getNewsList(body: Map<String, Any>) {
+        try {
+            val resp = repository.queryNewsList(body)
+            _uiState.update { it.copy(newsList = resp.data) }
         } catch (exception: Exception) {
             LogUntil.d(msg = exception.message!!)
         }

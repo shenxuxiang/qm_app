@@ -22,7 +22,7 @@ fun FavoriteScreen() {
     Column(modifier = Modifier.systemBarsPadding()) {
         Button(onClick = {
             coroutineScope.launch {
-                favoriteViewModel.getBannerList({})
+                favoriteViewModel.getBannerList(body = emptyMap())
             }
         }) {
             Text("发送请求")

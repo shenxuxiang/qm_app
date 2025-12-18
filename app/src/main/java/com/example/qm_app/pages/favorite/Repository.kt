@@ -8,5 +8,7 @@ class Repository {
     val apiService = HttpRequest.create<MainServiceApi>()
 
     // 挂起函数可以返回值
-    suspend fun getBannerList(body: Any) = apiService.queryBannerList(body).await()
+    suspend fun queryBannerList(body: Map<String, Any>) = apiService.queryBannerList(body).await()
+
+    suspend fun queryNewsList(body: Map<String, Any>) = apiService.queryNewsList(body).await()
 }

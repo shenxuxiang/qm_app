@@ -8,8 +8,8 @@ import retrofit2.http.POST
 
 interface MainServiceApi {
     @POST("v1.0/banner/list")
-    fun queryBannerList(@Body body: Any): Call<ResponseData<List<Any>>>
+    fun queryBannerList(@Body body: Map<String, Any>): Call<ResponseData<List<Any>>>
 
     @GET("v1.0/policyInformation/page")
-    suspend fun queryNewsList(): Call<ResponseData<Any>>
+    suspend fun queryNewsList(@Body body: Map<String, Any>): Call<ResponseData<List<Any>>>
 }
