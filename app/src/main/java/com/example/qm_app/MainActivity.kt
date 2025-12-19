@@ -11,6 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
+import com.example.qm_app.components.QmToast
 import com.example.qm_app.router.Router
 import com.example.qm_app.ui.theme.Qm_appTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -46,6 +47,7 @@ class MainActivity : ComponentActivity() {
 
                 Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
                     Router(startDestination = "main")
+                    QmToast()
                 }
             }
         }

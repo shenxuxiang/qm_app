@@ -10,6 +10,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.qm_app.common.EventBus
+import com.example.qm_app.common.UiEvent
 import kotlinx.coroutines.launch
 
 @Composable
@@ -22,7 +24,8 @@ fun FavoriteScreen() {
     Column(modifier = Modifier.systemBarsPadding()) {
         Button(onClick = {
             coroutineScope.launch {
-                favoriteViewModel.getBannerList(body = emptyMap())
+                // favoriteViewModel.getBannerList(body = emptyMap())
+                EventBus.emitEvent(UiEvent.ShowToast("自定义弹框展示"))
             }
         }) {
             Text("发送请求")
