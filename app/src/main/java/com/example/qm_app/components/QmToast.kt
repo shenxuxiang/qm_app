@@ -5,10 +5,12 @@ import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -21,11 +23,14 @@ import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.qm_app.common.EventBus
+import com.example.qm_app.common.QmIcons
 import com.example.qm_app.common.ToastType
 import com.example.qm_app.common.UiEvent
 import kotlinx.coroutines.channels.Channel
@@ -38,6 +43,7 @@ data class ToastTask(val message: String, val duration: Int, val type: ToastType
 fun QmToast(durationMillis: Int = 300) {
     val initialScale = 0.6f
     val initialOffset = (-50).dp
+    val maxWidth = (LocalConfiguration.current.screenWidthDp * 0.7).dp
 
     val message = remember { mutableStateOf("") }
     val isShow = remember { mutableStateOf(false) }
@@ -51,7 +57,6 @@ fun QmToast(durationMillis: Int = 300) {
     LaunchedEffect(Unit) {
         EventBus.event.collect { event ->
             if (event is UiEvent.ShowToast) {
-                println("========================")
                 messageQueue.trySend(
                     element = ToastTask(
                         type = event.type,
@@ -64,24 +69,19 @@ fun QmToast(durationMillis: Int = 300) {
     }
 
     LaunchedEffect(Unit) {
-        for (task in messageQueue) {
-            println("========================22222")
-            println("========================22222: $task")
-            println("========================22222: ${messageQueue.tryReceive().getOrNull()}")
-            messageQueue.tryReceive().getOrNull()?.let {
-                println("========================33333: ${it.message}")
-                isShow.value = true
-                message.value = it.message
-                launch {
-                    scaleAnimate.animateTo(1f, animationSpec = tween(durationMillis))
-                }
-                launch {
-                    offsetAnimate.animateTo(0.dp, animationSpec = tween(durationMillis))
-                }
-                delay(it.duration.toLong())
-                isShow.value = false
-                delay(300)
+        for (item in messageQueue) {
+            isShow.value = true
+            message.value = item.message
+            messageType.value = item.type
+            launch {
+                scaleAnimate.animateTo(1f, animationSpec = tween(durationMillis))
             }
+            launch {
+                offsetAnimate.animateTo(0.dp, animationSpec = tween(durationMillis))
+            }
+            delay(item.duration.toLong())
+            isShow.value = false
+            delay(300)
         }
     }
 
@@ -106,12 +106,46 @@ fun QmToast(durationMillis: Int = 300) {
                     scaleX = scaleAnimate.value,
                     scaleY = scaleAnimate.value,
                 )
-                .background(color = Color(0xA0000000), shape = RoundedCornerShape(4.dp))
-                .padding(vertical = 8.dp, horizontal = 12.dp)
+                .background(
+                    color = Color(0xFF000000).copy(alpha = 0.7f),
+                    shape = RoundedCornerShape(4.dp)
+                )
+                .padding(vertical = 12.dp, horizontal = 16.dp)
         ) {
-            Row() {
-                QmIcon(icon = QmIcons.Warn)
-                Text(text = message.value, color = Color.White, fontSize = 14.sp)
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                when (messageType.value) {
+                    ToastType.Success -> {
+                        QmIcon(
+                            icon = QmIcons.Stroke.Success,
+                            size = 22.dp,
+                            tint = Color(0xFF3AC786),
+                            modifier = Modifier.padding(end = 6.dp)
+                        )
+                    }
+
+                    ToastType.Warning -> {
+                        QmIcon(
+                            icon = QmIcons.Stroke.Warn,
+                            size = 22.dp,
+                            tint = Color(0xFFFF4D4F),
+                            modifier = Modifier.padding(end = 6.dp)
+                        )
+                    }
+
+                    else -> {}
+                }
+                Text(
+                    text = message.value,
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    lineHeight = 24.sp,
+                    textAlign = TextAlign.Center,
+                    maxLines = if (messageType.value == ToastType.Default) 2 else 1,
+                    modifier = Modifier.widthIn(120.dp, maxWidth),
+                )
             }
         }
     }

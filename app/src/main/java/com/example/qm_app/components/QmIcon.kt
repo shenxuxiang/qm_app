@@ -7,11 +7,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.qm_app.common.QmIcons
 import com.example.qm_app.ui.theme.QmIconFontFamily
-
-sealed class QmIcons(val icon: String) {
-    object Warn : QmIcons("\ue62b")
-}
 
 @Composable
 fun QmIcon(

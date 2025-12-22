@@ -11,7 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.qm_app.common.EventBus
+import com.example.qm_app.common.ToastType
 import com.example.qm_app.common.UiEvent
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -25,7 +27,11 @@ fun FavoriteScreen() {
         Button(onClick = {
             coroutineScope.launch {
                 // favoriteViewModel.getBannerList(body = emptyMap())
-                EventBus.emitEvent(UiEvent.ShowToast("自定义弹框展示"))
+                EventBus.emitEvent(UiEvent.ShowToast("自定义弹框展示自定义弹框展示自定义弹框展示自定义弹框展示"))
+                delay(500)
+                EventBus.emitEvent(UiEvent.ShowToast("自定义弹框展示", type = ToastType.Success))
+                delay(500)
+                EventBus.emitEvent(UiEvent.ShowToast("自定义弹框展示", type = ToastType.Warning))
             }
         }) {
             Text("发送请求")
