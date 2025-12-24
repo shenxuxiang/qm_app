@@ -1,7 +1,6 @@
 package com.example.qm_app.common
 
 import android.util.Log
-import com.example.qm_app.BuildConfig
 
 object LogUntil {
     private const val VERBOSE = 1
@@ -11,35 +10,44 @@ object LogUntil {
     private const val ERROR = 5
     private const val TAG = "QM_APP_LOG"
 
-    // BuildConfig.DEBUG-true 开发环境、false-生产环境
-    private var level = if (BuildConfig.DEBUG) VERBOSE else 0
+    // isDevelopment-true 开发环境、false-生产环境
+    private var level = if (QmAppConfig.isDevelopment) VERBOSE else 0
 
-    fun v(tag: String = TAG, msg: String) {
+    fun v(msg: String, tag: String = TAG) {
         if (level <= VERBOSE) {
             Log.v(tag, msg)
         }
     }
 
 
-    fun d(tag: String = TAG, msg: String) {
+    fun d(msg: String, tag: String = TAG) {
         if (level <= DEBUG) {
             Log.d(tag, msg)
         }
     }
 
-    fun i(tag: String = TAG, msg: String) {
+    fun d(exception: Exception, tag: String = TAG) {
+        if (level <= DEBUG) {
+            Log.d(tag, exception.message ?: "")
+            for (item in exception.stackTrace) {
+                Log.d(tag, item.toString())
+            }
+        }
+    }
+
+    fun i(msg: String, tag: String = TAG) {
         if (level <= INFO) {
             Log.i(tag, msg)
         }
     }
 
-    fun w(tag: String = TAG, msg: String) {
+    fun w(msg: String, tag: String = TAG) {
         if (level <= WARN) {
             Log.w(tag, msg)
         }
     }
 
-    fun e(tag: String = TAG, msg: String) {
+    fun e(msg: String, tag: String = TAG) {
         if (level <= ERROR) {
             Log.e(tag, msg)
         }

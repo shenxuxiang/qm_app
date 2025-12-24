@@ -22,6 +22,7 @@ fun QmIcon(
         text = icon.icon,
         modifier = modifier,
         fontSize = size.value.sp,
+        lineHeight = size.value.sp,
         fontFamily = QmIconFontFamily,
     )
 }

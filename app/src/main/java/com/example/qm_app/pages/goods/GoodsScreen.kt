@@ -90,7 +90,7 @@ fun GoodsScreen() {
         contentAlignment = Alignment.TopStart,
     ) {
         Image(
-            painter = painterResource(R.drawable.img),
+            painter = painterResource(R.drawable.background_img),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop,

@@ -22,11 +22,7 @@ class QmApplication() : Application() {
         var commonViewModel: CommonViewModel
             get() = _commonViewModel
             set(viewModel) {
-                if (!::_commonViewModel.isInitialized) {
-                    _commonViewModel = viewModel
-                } else {
-                    throw RuntimeException("[QmApplication CommonViewModel] has been initialized and cannot be duplicated")
-                }
+                _commonViewModel = viewModel
             }
 
         private lateinit var _navController: NavController
@@ -37,11 +33,7 @@ class QmApplication() : Application() {
         var navController: NavController
             get() = _navController
             set(controller) {
-                if (!::_navController.isInitialized) {
-                    _navController = controller
-                } else {
-                    throw RuntimeException("[QmApplication NavController] has been initialized and cannot be duplicated")
-                }
+                _navController = controller
             }
     }
 

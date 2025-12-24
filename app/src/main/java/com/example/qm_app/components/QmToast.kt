@@ -16,8 +16,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
@@ -29,58 +32,64 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.qm_app.common.EventBus
 import com.example.qm_app.common.QmIcons
-import com.example.qm_app.common.ToastType
-import com.example.qm_app.common.UiEvent
+import com.example.qm_app.common.QmToastManager
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-data class ToastTask(val message: String, val duration: Int, val type: ToastType)
+@Stable
+data class ToastState(
+    val message: String,
+    val visible: Boolean,
+    val type: QmToastManager.ToastType,
+)
 
 @Composable
-fun QmToast(durationMillis: Int = 300) {
+fun QmToast(
+    animationDuration: Int = 300,
+    alignment: Alignment = BiasAlignment(horizontalBias = 0f, verticalBias = -0.5f),
+) {
     val initialScale = 0.6f
     val initialOffset = (-50).dp
     val maxWidth = (LocalConfiguration.current.screenWidthDp * 0.7).dp
 
-    val message = remember { mutableStateOf("") }
-    val isShow = remember { mutableStateOf(false) }
-    val messageType = remember { mutableStateOf(ToastType.Default) }
+    var toastState by remember {
+        mutableStateOf(
+            ToastState(
+                message = "",
+                visible = false,
+                type = QmToastManager.ToastType.Default,
+            )
+        )
+    }
 
-    val alpha = animateFloatAsState(targetValue = if (isShow.value) 1f else 0f)
+    val alpha = animateFloatAsState(targetValue = if (toastState.visible) 1f else 0f)
     val scaleAnimate = remember { Animatable(initialScale) }
     val offsetAnimate = remember { Animatable(initialOffset, Dp.VectorConverter) }
-    val messageQueue = remember { Channel<ToastTask>(Channel.UNLIMITED) }
+    val messageQueue = remember { Channel<QmToastManager.UiEvent>(Channel.UNLIMITED) }
 
     LaunchedEffect(Unit) {
-        EventBus.event.collect { event ->
-            if (event is UiEvent.ShowToast) {
-                messageQueue.trySend(
-                    element = ToastTask(
-                        type = event.type,
-                        message = event.message,
-                        duration = event.duration,
-                    )
-                )
-            }
+        QmToastManager.EventBus.event.collect { event ->
+            messageQueue.trySend(element = event)
         }
     }
 
     LaunchedEffect(Unit) {
         for (item in messageQueue) {
-            isShow.value = true
-            message.value = item.message
-            messageType.value = item.type
+            toastState = ToastState(
+                visible = true,
+                type = item.type,
+                message = item.message,
+            )
             launch {
-                scaleAnimate.animateTo(1f, animationSpec = tween(durationMillis))
+                scaleAnimate.animateTo(1f, animationSpec = tween(animationDuration))
             }
             launch {
-                offsetAnimate.animateTo(0.dp, animationSpec = tween(durationMillis))
+                offsetAnimate.animateTo(0.dp, animationSpec = tween(animationDuration))
             }
             delay(item.duration.toLong())
-            isShow.value = false
+            toastState = toastState.copy(visible = false)
             delay(300)
         }
     }
@@ -93,11 +102,12 @@ fun QmToast(durationMillis: Int = 300) {
     }
 
     Box(
+        contentAlignment = alignment,
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = BiasAlignment(0f, -0.5f),
     ) {
         Box(
             modifier = Modifier
+                .widthIn(120.dp, maxWidth)
                 .wrapContentWidth(Alignment.CenterHorizontally)
                 .graphicsLayer(
                     translationX = 0f,
@@ -116,8 +126,8 @@ fun QmToast(durationMillis: Int = 300) {
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                when (messageType.value) {
-                    ToastType.Success -> {
+                when (toastState.type) {
+                    QmToastManager.ToastType.Success -> {
                         QmIcon(
                             icon = QmIcons.Stroke.Success,
                             size = 22.dp,
@@ -126,7 +136,7 @@ fun QmToast(durationMillis: Int = 300) {
                         )
                     }
 
-                    ToastType.Warning -> {
+                    QmToastManager.ToastType.Warning -> {
                         QmIcon(
                             icon = QmIcons.Stroke.Warn,
                             size = 22.dp,
@@ -138,13 +148,12 @@ fun QmToast(durationMillis: Int = 300) {
                     else -> {}
                 }
                 Text(
-                    text = message.value,
-                    color = Color.White,
+                    text = toastState.message,
                     fontSize = 16.sp,
                     lineHeight = 24.sp,
+                    color = Color.White,
                     textAlign = TextAlign.Center,
-                    maxLines = if (messageType.value == ToastType.Default) 2 else 1,
-                    modifier = Modifier.widthIn(120.dp, maxWidth),
+                    maxLines = if (toastState.type == QmToastManager.ToastType.Default) 2 else 1,
                 )
             }
         }

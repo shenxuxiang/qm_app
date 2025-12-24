@@ -21,22 +21,68 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        manifestPlaceholders["appName"] = "阡陌农服"
+    }
+    flavorDimensions.add("environment")
+    // 定义环境维度下的风味
+    productFlavors {
+        create("dev") {
+            // 属于环境维度
+            dimension = "environment"
+            // 包名后缀
+            applicationIdSuffix = ".dev"
+            // 版本名后缀
+            versionNameSuffix = "-alpha"
+
+            buildConfigField(type = "String", name = "ENVIRONMENT", value = "\"development\"")
+            buildConfigField(
+                type = "String",
+                name = "BASE_URL",
+                value = "\"http://60.169.69.3:30062\""
+            )
+            resValue(type = "string", name = "app_name", value = "阡陌农服dev")
+            manifestPlaceholders["appName"] = "阡陌农服dev"
+        }
+
+        create("prod") {
+            dimension = "environment"
+            buildConfigField(type = "String", name = "ENVIRONMENT", value = "\"production\"")
+            buildConfigField(
+                type = "String",
+                name = "BASE_URL",
+                value = "\"http://60.169.69.3:30066\""
+            )
+            resValue(type = "string", name = "app_name", value = "阡陌农服")
+        }
+    }
+
+    // 配置签名文件
+    signingConfigs {
+        create("release") {
+            storeFile = file("./release-keystore.jks")
+            keyAlias = "release-keystore"
+            storePassword = "sqal@145680"
+            keyPassword = "sqal@145680"
+        }
     }
 
     buildTypes {
         debug {
             // 确保 BuildConfig.DEBUG 在调试模式下为 true
             // 这行配置不是必须的，但显式声明更清晰，有助于确保类被生成
-            buildConfigField("boolean", "DEBUG", "true")
+            buildConfigField(type = "Boolean", name = "DEBUG", value = "true")
         }
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
             // 2. 为 release 构建类型也配置一个 DEBUG 字段，值为 false
-            buildConfigField("boolean", "DEBUG", "false")
+            buildConfigField(type = "Boolean", name = "DEBUG", value = "false")
         }
     }
     compileOptions {

@@ -19,7 +19,7 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="${appName}"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Qm_app"
@@ -27,7 +27,6 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:launchMode="singleTop"
             android:theme="@style/Theme.Qm_app">
             <intent-filter>
@@ -48,7 +47,7 @@
         </activity>
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.example.qm_app.FileProvider"
+            android:authorities="${applicationId}.FileProvider"
             android:exported="false"
             android:enabled="true"
             android:grantUriPermissions="true">

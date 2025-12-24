@@ -48,7 +48,7 @@ sealed class QmIcons(val icon: String) {
         object Capture : QmIcons("\ue64c")
 
         // 底部菜单栏选中
-        object TabMenuHome : QmIcons("\ue61c")
+        object TabBarMenuHome : QmIcons("\ue61c")
         object TabBarMenuService : QmIcons("\ue61d")
         object TabBarMenuRelease : QmIcons("\ue617")
         object TabBarMenuAgricultural : QmIcons("\ue614")

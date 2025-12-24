@@ -228,7 +228,7 @@ fun UserScreen(id: String) {
                                 .data(imageBitmap.value)
                                 .crossfade(true)
                                 .build(),
-                            placeholder = painterResource(R.drawable.img),
+                            placeholder = painterResource(R.drawable.background_img),
                             contentDescription = null,
                         )
                     }

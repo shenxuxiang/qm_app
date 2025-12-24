@@ -1,8 +1,9 @@
 <resources>
     <string name="app_name">qm_app</string>
     <string name="home">首页</string>
-    <string name="favorite">喜欢</string>
-    <string name="profile">我的</string>
-    <string name="cart">购物车</string>
+    <string name="service">服务</string>
+    <string name="release">发布</string>
+    <string name="agricultural_technology">农技</string>
+    <string name="mine">我的</string>
     <string name="title_activity_main">MainActivity</string>
 </resources>

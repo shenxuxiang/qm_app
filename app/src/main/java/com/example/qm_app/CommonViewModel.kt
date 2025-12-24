@@ -2,6 +2,8 @@ package com.example.qm_app
 
 import androidx.lifecycle.ViewModel
 import com.example.qm_app.common.QmApplication
+import com.example.qm_app.pages.home.HomeTabBar
+import com.example.qm_app.router.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -9,7 +11,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CommonViewModel @Inject constructor() : ViewModel() {
-    private val _bottomNavBarTabKey = MutableStateFlow("home")
+    private val _bottomNavBarTabKey = MutableStateFlow(value = HomeTabBar.Home.route)
 
     /**
      * 主页底部 NavBar，
@@ -20,9 +22,9 @@ class CommonViewModel @Inject constructor() : ViewModel() {
     fun navToMainScreen(tab: String) {
         _bottomNavBarTabKey.value = tab
         val navController = QmApplication.navController
-        if (navController.currentBackStackEntry?.destination?.route != "main") {
-            navController.navigate("main") {
-                popUpTo("main") {}
+        if (navController.currentBackStackEntry?.destination?.route != Route.HomeScreen.route) {
+            navController.navigate(Route.HomeScreen.route) {
+                popUpTo(Route.HomeScreen.route) {}
                 launchSingleTop = true
             }
         }
