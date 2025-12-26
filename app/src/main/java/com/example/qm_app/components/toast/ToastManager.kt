@@ -1,9 +1,9 @@
-package com.example.qm_app.common
+package com.example.qm_app.components.toast
 
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
-object QmToastManager {
+object ToastManager {
     enum class ToastType { Default, Warning, Success }
     class UiEvent(val message: String, val duration: Int, val type: ToastType)
     object EventBus {
@@ -18,7 +18,6 @@ object QmToastManager {
             _event.tryEmit(event)
         }
     }
-
 
     suspend fun showToast(
         message: String,

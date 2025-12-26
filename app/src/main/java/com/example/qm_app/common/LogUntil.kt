@@ -11,7 +11,7 @@ object LogUntil {
     private const val TAG = "QM_APP_LOG"
 
     // isDevelopment-true 开发环境、false-生产环境
-    private var level = if (QmAppConfig.isDevelopment) VERBOSE else 0
+    private var level = if (QmAppConfig.isDev) VERBOSE else 0
 
     fun v(msg: String, tag: String = TAG) {
         if (level <= VERBOSE) {

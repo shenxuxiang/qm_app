@@ -1,7 +1,9 @@
 package com.example.qm_app.pages.home
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
@@ -12,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.example.qm_app.common.QmApplication
 import com.example.qm_app.pages.home.components.BottomNavBar
 import com.example.qm_app.pages.tab.agricultural.AgriculturalScreen
@@ -21,7 +22,7 @@ import com.example.qm_app.pages.tab.mine.MineScreen
 import com.example.qm_app.pages.tab.release.ReleaseScreen
 import com.example.qm_app.pages.tab.service.ServiceScreen
 
-val items = listOf(
+val tabItems = listOf(
     HomeTabBar.Home,
     HomeTabBar.Service,
     HomeTabBar.Release,
@@ -36,15 +37,15 @@ fun HomeScreen() {
     val bottomNavBarTab = commonViewModel.bottomNavBarTab.collectAsState()
     val state = rememberPagerState(
         initialPage = 0,
-        pageCount = { items.size })
+        pageCount = { tabItems.size })
 
     LaunchedEffect(bottomNavBarTab.value) {
-        val index = items.indexOfFirst { screen -> screen.route == bottomNavBarTab.value }
+        val index = tabItems.indexOfFirst { screen -> screen.route == bottomNavBarTab.value }
         if (state.currentPage != index) state.scrollToPage(index)
     }
 
     LaunchedEffect(state.currentPage) {
-        val screen = items[state.currentPage]
+        val screen = tabItems[state.currentPage]
         if (screen.route != bottomNavBarTab.value) commonViewModel.navToMainScreen(tab = screen.route)
     }
 
@@ -55,19 +56,20 @@ fun HomeScreen() {
         bottomBar = {
             BottomNavBar(
                 tabKey = bottomNavBarTab.value,
-                items = items,
+                items = tabItems,
             ) { tab ->
                 commonViewModel.navToMainScreen(tab)
             }
-        }
-    ) {
+        },
+        contentWindowInsets = WindowInsets.navigationBars,
+    ) { paddingValues ->
         HorizontalPager(
             state = state,
             pageSize = PageSize.Fill,
+            beyondViewportPageCount = tabItems.size,
             modifier = Modifier
                 .fillMaxSize()
-                .navigationBarsPadding()
-                .padding(bottom = 49.dp)
+                .padding(paddingValues),
         ) { tab ->
             when (tab) {
                 0 -> TabHomeScreen()

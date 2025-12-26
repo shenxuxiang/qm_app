@@ -1,9 +1,9 @@
-package com.example.qm_app.common
+package com.example.qm_app.components.loading
 
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
-object QmLoadingManager {
+object LoadingManager {
     sealed class UiEvent {
         data class ShowLoading(val message: String) : UiEvent()
         object HideLoading : UiEvent()
@@ -23,7 +23,7 @@ object QmLoadingManager {
         }
     }
 
-    suspend fun show(message: String) {
+    suspend fun show(message: String = "数据加载中···") {
         EventBus.emit(UiEvent.ShowLoading(message))
     }
 

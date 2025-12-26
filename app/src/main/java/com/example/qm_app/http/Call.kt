@@ -1,7 +1,10 @@
 package com.example.qm_app.http
 
 import com.example.qm_app.common.LogUntil
+import com.example.qm_app.common.QmApplication
 import com.example.qm_app.common.TokenManager
+import com.example.qm_app.components.toast.ToastManager
+import com.example.qm_app.router.Route
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.HttpException
@@ -33,11 +36,15 @@ suspend fun <T> Call<T>.await(): T = suspendCoroutine { continuation ->
                         401 -> { // 用户无权限
                             TokenManager.token = null
                             HttpToolkit.cancelAllPendingRequest()
+                            ToastManager.showToastPost("用户暂未登录")
+                            QmApplication.navController.navigate(route = Route.LoginScreen.route) {
+                                popUpTo(Route.HomeScreen.route) { inclusive = true }
+                            }
                             continuation.resumeWithException(RuntimeException("请求已取消"))
                         }
 
                         else -> { // 其他异常
-                            LogUntil.d("HttpRequest", responseData.message)
+                            LogUntil.d(msg = responseData.message)
                             continuation.resumeWithException(RuntimeException(responseData.message))
                         }
                     }
@@ -54,26 +61,24 @@ suspend fun <T> Call<T>.await(): T = suspendCoroutine { continuation ->
 
         override fun onFailure(call: Call<T?>, t: Throwable) {
             if (call.isCanceled) {
-                LogUntil.d("HttpRequest", "请求已被取消")
+                LogUntil.d(msg = "请求已被取消")
             } else {
                 when (t) {
                     is ConnectException -> {
-                        LogUntil.d("HttpRequest", "网络异常")
+                        LogUntil.d(msg = "网络异常")
                     }
 
                     is SocketTimeoutException -> {
-                        LogUntil.d("HttpRequest", "请求超时")
+                        LogUntil.d(msg = "请求超时")
                     }
 
                     else -> {
-                        LogUntil.d("HttpRequest", t.message ?: "未知异常")
+                        LogUntil.d(msg = t.message ?: "未知异常")
                     }
                 }
             }
 
-            for (item in t.stackTrace) {
-                LogUntil.d("HttpRequest", item.toString())
-            }
+            LogUntil.d(exception = t as Exception)
             continuation.resumeWithException(t)
         }
     })

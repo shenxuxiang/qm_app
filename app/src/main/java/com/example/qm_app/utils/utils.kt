@@ -1,11 +1,11 @@
 package com.example.qm_app.utils
 
+import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Base64
-import com.example.qm_app.common.QmApplication
+import com.example.qm_app.common.QmAppConfig
 import java.io.ByteArrayOutputStream
 import kotlin.math.abs
 import kotlin.math.min
@@ -24,6 +24,7 @@ fun isBlankFrame(bitmap: Bitmap, threshold: Int = 32): Boolean {
         false
     )
 
+
     val pixels = IntArray(sampleWidth * sampleHeight)
     scaledBitmap.getPixels(pixels, 0, sampleWidth, 0, 0, sampleWidth, sampleHeight)
 
@@ -33,9 +34,9 @@ fun isBlankFrame(bitmap: Bitmap, threshold: Int = 32): Boolean {
     var totalB = 0
 
     for (pixel in pixels) {
-        totalR += Color.red(pixel)
-        totalG += Color.green(pixel)
-        totalB += Color.blue(pixel)
+        totalR += android.graphics.Color.red(pixel)
+        totalG += android.graphics.Color.green(pixel)
+        totalB += android.graphics.Color.blue(pixel)
     }
 
     val avgR = totalR / pixels.size
@@ -45,9 +46,9 @@ fun isBlankFrame(bitmap: Bitmap, threshold: Int = 32): Boolean {
     // 检查像素值是否接近平均值（判断是否为单色）
     var uniformCount = 0
     for (pixel in pixels) {
-        val r = Color.red(pixel)
-        val g = Color.green(pixel)
-        val b = Color.blue(pixel)
+        val r = android.graphics.Color.red(pixel)
+        val g = android.graphics.Color.green(pixel)
+        val b = android.graphics.Color.blue(pixel)
 
         if (abs(r - avgR) <= threshold &&
             abs(g - avgG) <= threshold &&
@@ -71,7 +72,7 @@ fun isBlankFrame(bitmap: Bitmap, threshold: Int = 32): Boolean {
     return isUniform || isExtremeDark || isExtremeBright
 }
 
-fun bitmapToBase64(bitmap: Bitmap, quality: Int = 85): String? {
+fun bitmapToBase64(bitmap: Bitmap, quality: Int = 85): String {
     val byteArrayOutputStream = ByteArrayOutputStream()
 
     try {
@@ -80,29 +81,34 @@ fun bitmapToBase64(bitmap: Bitmap, quality: Int = 85): String? {
         val byteArray = byteArrayOutputStream.toByteArray()
 
         // 转换为 Base64
-        return Base64.encodeToString(byteArray, Base64.DEFAULT)
-    } catch (exception: Exception) {
-        return null
+        return Base64.encodeToString(byteArray, Base64.NO_WRAP)
+    } finally {
+        try {
+            byteArrayOutputStream.close()
+        } catch (e: Exception) {
+            // 忽略关闭异常
+        }
     }
 }
 
-fun getFirstFrameVideo(uri: Uri, quality: Int): String? {
+fun getFirstFrameVideo(context: Context, uri: Uri, quality: Int): String {
     val retriever = MediaMetadataRetriever()
-    retriever.setDataSource(QmApplication.context, uri)
+    retriever.setDataSource(context, uri)
 
     var step = 0L
     var bitmap: Bitmap? = null
     while (true) {
         bitmap = retriever.getFrameAtTime(step, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
-        if (bitmap == null || isBlankFrame(bitmap)) {
-            bitmap?.recycle()
-            step++
-        } else {
-            retriever.release()
+        if (bitmap != null && !isBlankFrame(bitmap)) {
             break
+        } else {
+            bitmap?.recycle()
+            step += 1000
         }
     }
-
     return bitmapToBase64(bitmap, quality)
 }
 
+fun getURL(path: String): String {
+    return "${QmAppConfig.baseURL}${path}"
+}

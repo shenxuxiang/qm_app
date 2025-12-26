@@ -1,4 +1,4 @@
-package com.example.qm_app.components
+package com.example.qm_app.components.loading
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
@@ -35,48 +36,51 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.qm_app.common.QmLoadingManager
+import com.example.qm_app.ui.theme.black
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 @Stable
-data class LoadingState(val visible: Boolean, val message: String)
+private data class LoadingState(val visible: Boolean, val message: String)
 
 @Composable
-fun QmLoading(
+fun Loading(
     animationDuration: Int = 300,
-    alignment: Alignment = BiasAlignment(horizontalBias = 0f, verticalBias = -0.5f),
+    alignment: Alignment = BiasAlignment(0f, -0.2f),
 ) {
     val initialScale = 0.6f
     val maxWidth = (LocalConfiguration.current.screenWidthDp * 0.8).dp
     val initialOffset = with(LocalDensity.current) { -50.dp.toPx() }
 
-    val taskQueue = remember { Channel<QmLoadingManager.UiEvent>(Channel.CONFLATED) }
+    val taskQueue = remember { Channel<LoadingManager.UiEvent>(Channel.CONFLATED) }
     var loadingState by remember { mutableStateOf(LoadingState(message = "", visible = false)) }
 
     // 透明度、缩放、偏移量设置
     val scaleAnimate = remember { Animatable(initialScale) }
     val offsetAnimate = remember { Animatable(initialOffset) }
-    val alpha = animateFloatAsState(targetValue = if (loadingState.visible) 1f else 0f)
+    val alpha = animateFloatAsState(
+        targetValue = if (loadingState.visible) 1f else 0f,
+        animationSpec = tween(durationMillis = animationDuration, delayMillis = 200)
+    )
 
     LaunchedEffect(Unit) {
-        QmLoadingManager.EventBus.event.collect { taskQueue.trySend(it) }
+        LoadingManager.EventBus.event.collect { taskQueue.trySend(it) }
     }
 
     LaunchedEffect(taskQueue) {
         for (task in taskQueue) {
-            if (task is QmLoadingManager.UiEvent.ShowLoading) {
+            if (task is LoadingManager.UiEvent.ShowLoading) {
                 loadingState = LoadingState(message = task.message, visible = true)
                 launch {
                     scaleAnimate.animateTo(
                         targetValue = 1f,
-                        animationSpec = tween(animationDuration)
+                        animationSpec = tween(durationMillis = animationDuration, delayMillis = 200)
                     )
                 }
                 launch {
                     offsetAnimate.animateTo(
                         targetValue = 0f,
-                        animationSpec = tween(animationDuration)
+                        animationSpec = tween(durationMillis = animationDuration, delayMillis = 200)
                     )
                 }
             } else {
@@ -97,6 +101,8 @@ fun QmLoading(
             contentAlignment = alignment,
             modifier = Modifier
                 .fillMaxSize()
+                .alpha(alpha = alpha.value)
+                .background(color = black.copy(alpha = 0.2f))
                 .clickable(onClick = {}, indication = null, interactionSource = null),
         ) {
             Box(
@@ -126,7 +132,7 @@ fun QmLoading(
                         modifier = Modifier.size(22.dp)
                     )
                     Text(
-                        text = "数据加载中...",
+                        text = loadingState.message,
                         fontSize = 16.sp,
                         lineHeight = 24.sp,
                         color = Color.White,

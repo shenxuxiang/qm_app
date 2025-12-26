@@ -11,7 +11,6 @@ object TokenManager {
             .getString(TOKEN, null)
     }
 
-
     private fun _setToken(newValue: String?) {
         QmApplication.context.getSharedPreferences("prefs", MODE_PRIVATE).edit {
             if (newValue == null) {

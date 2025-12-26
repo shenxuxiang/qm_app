@@ -1,4 +1,4 @@
-package com.example.qm_app.components
+package com.example.qm_app.components.toast
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.VectorConverter
@@ -33,20 +33,20 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.qm_app.common.QmIcons
-import com.example.qm_app.common.QmToastManager
+import com.example.qm_app.components.QmIcon
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Stable
-data class ToastState(
+private data class ToastState(
     val message: String,
     val visible: Boolean,
-    val type: QmToastManager.ToastType,
+    val type: ToastManager.ToastType,
 )
 
 @Composable
-fun QmToast(
+fun Toast(
     animationDuration: Int = 300,
     alignment: Alignment = BiasAlignment(horizontalBias = 0f, verticalBias = -0.5f),
 ) {
@@ -59,7 +59,7 @@ fun QmToast(
             ToastState(
                 message = "",
                 visible = false,
-                type = QmToastManager.ToastType.Default,
+                type = ToastManager.ToastType.Default,
             )
         )
     }
@@ -67,10 +67,10 @@ fun QmToast(
     val alpha = animateFloatAsState(targetValue = if (toastState.visible) 1f else 0f)
     val scaleAnimate = remember { Animatable(initialScale) }
     val offsetAnimate = remember { Animatable(initialOffset, Dp.VectorConverter) }
-    val messageQueue = remember { Channel<QmToastManager.UiEvent>(Channel.UNLIMITED) }
+    val messageQueue = remember { Channel<ToastManager.UiEvent>(Channel.UNLIMITED) }
 
     LaunchedEffect(Unit) {
-        QmToastManager.EventBus.event.collect { event ->
+        ToastManager.EventBus.event.collect { event ->
             messageQueue.trySend(element = event)
         }
     }
@@ -127,7 +127,7 @@ fun QmToast(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 when (toastState.type) {
-                    QmToastManager.ToastType.Success -> {
+                    ToastManager.ToastType.Success -> {
                         QmIcon(
                             icon = QmIcons.Stroke.Success,
                             size = 22.dp,
@@ -136,7 +136,7 @@ fun QmToast(
                         )
                     }
 
-                    QmToastManager.ToastType.Warning -> {
+                    ToastManager.ToastType.Warning -> {
                         QmIcon(
                             icon = QmIcons.Stroke.Warn,
                             size = 22.dp,
@@ -153,10 +153,9 @@ fun QmToast(
                     lineHeight = 24.sp,
                     color = Color.White,
                     textAlign = TextAlign.Center,
-                    maxLines = if (toastState.type == QmToastManager.ToastType.Default) 2 else 1,
+                    maxLines = if (toastState.type == ToastManager.ToastType.Default) 2 else 1,
                 )
             }
         }
     }
 }
-

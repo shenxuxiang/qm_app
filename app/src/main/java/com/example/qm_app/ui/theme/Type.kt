@@ -1,10 +1,12 @@
 package com.example.qm_app.ui.theme
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.qm_app.R
 
@@ -36,3 +38,8 @@ val Typography = Typography(
 )
 
 val QmIconFontFamily = FontFamily(Font(R.font.iconfont))
+
+val corner4 = RoundedCornerShape(4.dp)
+val corner6 = RoundedCornerShape(6.dp)
+val corner8 = RoundedCornerShape(8.dp)
+val corner10 = RoundedCornerShape(10.dp)
