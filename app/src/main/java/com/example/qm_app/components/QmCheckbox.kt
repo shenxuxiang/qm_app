@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -30,8 +31,9 @@ fun QmCheckbox(
     radius: Dp = 6.dp,
     duration: Int = 300,
     value: Boolean = false,
-    onChanged: (value: Boolean) -> Unit,
+    onChange: (value: Boolean) -> Unit,
 ) {
+    val primaryColor = MaterialTheme.colorScheme.primary
     val checked = remember { mutableStateOf(value) }
     val progress = animateFloatAsState(
         targetValue = if (checked.value) 1f else 0f,
@@ -52,13 +54,13 @@ fun QmCheckbox(
                 interactionSource = null,
                 onClick = {
                     checked.value = !checked.value
-                    onChanged(checked.value)
+                    onChange(checked.value)
                 },
             )
     ) {
         val fillColor = lerp(
             start = Color.White,
-            stop = Color(0xFFFF9900),
+            stop = primaryColor,
             fraction = progress.value / 0.5.coerceAtMost(1.0).toFloat()
         )
 
@@ -69,8 +71,8 @@ fun QmCheckbox(
             cornerRadius = CornerRadius(x = radius.toPx(), y = radius.toPx()),
         )
         drawRoundRect(
-            style = Stroke(width = 1f),
-            color = Color(0xFFFF9900),
+            style = Stroke(width = 0.5.dp.toPx()),
+            color = primaryColor,
             topLeft = Offset(0f, 0f),
             cornerRadius = CornerRadius(x = radius.toPx(), y = radius.toPx()),
         )

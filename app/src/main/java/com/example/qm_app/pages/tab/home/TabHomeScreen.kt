@@ -20,7 +20,7 @@ import com.example.qm_app.components.MenuListBox
 import com.example.qm_app.components.PageScaffold
 import com.example.qm_app.components.PullToRefreshColumn
 import com.example.qm_app.components.Swiper
-import com.example.qm_app.components.loading.LoadingManager
+import com.example.qm_app.components.loading.Loading
 import com.example.qm_app.pages.tab.home.components.NewsItemBox
 import kotlinx.coroutines.launch
 
@@ -69,9 +69,9 @@ fun TabHomeScreen() {
             isRefreshing = uiState.isRefreshing,
             onRefresh = {
                 coroutineScope.launch {
-                    LoadingManager.show()
+                    Loading.show()
                     tabHomeViewModel.handleRefresh()
-                    LoadingManager.hide()
+                    Loading.hide()
                 }
             },
         ) {

@@ -11,6 +11,7 @@ import androidx.navigation.navDeepLink
 import com.example.qm_app.pages.goods.GoodsScreen
 import com.example.qm_app.pages.home.HomeScreen
 import com.example.qm_app.pages.login.LoginScreen
+import com.example.qm_app.pages.signup.SignUpScreen
 import com.example.qm_app.pages.user.UserScreen
 import kotlin.reflect.KClass
 
@@ -44,6 +45,11 @@ sealed class Route(
      * 登录页
      * */
     object LoginScreen : Route(route = "login", content = { LoginScreen() })
+
+    /**
+     * 注册页
+     * */
+    object SignUpScreen : Route(route = "signUp", content = { SignUpScreen() })
 
     /**
      * 用户

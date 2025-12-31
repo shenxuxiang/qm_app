@@ -12,3 +12,6 @@ val black4 = Color(0xFF4A4A4A)
 val gray = Color(0xFF999999)
 val primaryColor = Color(0xFF3AC786)
 val onPrimaryColor = white
+
+val errorColor = Color(0xFFFF4949)
+val onErrorColor = white

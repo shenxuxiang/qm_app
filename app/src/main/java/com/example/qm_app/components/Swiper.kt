@@ -1,6 +1,10 @@
 package com.example.qm_app.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,7 +18,7 @@ import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerScope
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberUpdatedState
@@ -28,6 +32,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.qm_app.ui.theme.primaryColor
 import com.example.qm_app.ui.theme.white
 
 
@@ -97,22 +102,35 @@ fun Swiper(
         }
 
         Row(
+            horizontalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(16.dp)
                 .align(Alignment.BottomStart)
                 .offset(x = 0.dp, y = (-12).dp)
-                .background(color = white.copy(alpha = 0.2f))
         ) {
             repeat(options.size) {
-                Box(
-                    modifier = Modifier
-                        .padding(horizontal = 5.dp)
-                        .size(12.dp, 12.dp)
-                        .clip(CircleShape)
-                        .background(color = white)
-                )
+                IndicatorItem(active = it == currentIndex.value)
             }
         }
     }
+}
+
+@Composable
+private fun IndicatorItem(active: Boolean) {
+    val indicatorWidth = animateDpAsState(
+        targetValue = if (active) 12.dp else 6.dp,
+        animationSpec = tween(durationMillis = 300),
+    )
+    val backgroundColor = animateColorAsState(
+        targetValue = if (active) primaryColor else white,
+        animationSpec = tween(durationMillis = 300),
+    )
+
+    Box(
+        modifier = Modifier
+            .padding(horizontal = 5.dp)
+            .size(width = indicatorWidth.value, height = 6.dp)
+            .clip(shape = RoundedCornerShape(size = 3.dp))
+            .background(color = backgroundColor.value)
+    )
 }

@@ -239,7 +239,7 @@ fun UserScreen(id: String) {
                 val checked = remember { mutableStateOf(false) }
                 QmCheckbox(
                     value = checked.value,
-                    onChanged = {
+                    onChange = {
                         checked.value = it
                         println("=====================checked: : ${it}")
                     },

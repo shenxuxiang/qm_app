@@ -38,8 +38,10 @@ val Typography = Typography(
 )
 
 val QmIconFontFamily = FontFamily(Font(R.font.iconfont))
-
+val corner2 = RoundedCornerShape(2.dp)
+val corner3 = RoundedCornerShape(3.dp)
 val corner4 = RoundedCornerShape(4.dp)
 val corner6 = RoundedCornerShape(6.dp)
 val corner8 = RoundedCornerShape(8.dp)
 val corner10 = RoundedCornerShape(10.dp)
+val corner18 = RoundedCornerShape(18.dp)

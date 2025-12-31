@@ -3,7 +3,7 @@ package com.example.qm_app.http
 import com.example.qm_app.common.LogUntil
 import com.example.qm_app.common.QmApplication
 import com.example.qm_app.common.TokenManager
-import com.example.qm_app.components.toast.ToastManager
+import com.example.qm_app.components.toast.Toast
 import com.example.qm_app.router.Route
 import retrofit2.Call
 import retrofit2.Callback
@@ -26,7 +26,7 @@ suspend fun <T> Call<T>.await(): T = suspendCoroutine { continuation ->
             // 必须要先判断响应是否成功
             if (response.isSuccessful) {
                 val responseData = response.body()!!
-
+                var message: String? = null
                 if (responseData is ResponseData<*>) {
                     when (responseData.code) {
                         0 -> { // 正常
@@ -34,9 +34,9 @@ suspend fun <T> Call<T>.await(): T = suspendCoroutine { continuation ->
                         }
 
                         401 -> { // 用户无权限
+                            message = "用户暂未登录"
                             TokenManager.token = null
                             HttpToolkit.cancelAllPendingRequest()
-                            ToastManager.showToastPost("用户暂未登录")
                             QmApplication.navController.navigate(route = Route.LoginScreen.route) {
                                 popUpTo(Route.HomeScreen.route) { inclusive = true }
                             }
@@ -44,17 +44,20 @@ suspend fun <T> Call<T>.await(): T = suspendCoroutine { continuation ->
                         }
 
                         else -> { // 其他异常
-                            LogUntil.d(msg = responseData.message)
+                            message = responseData.message
                             continuation.resumeWithException(RuntimeException(responseData.message))
                         }
                     }
                 } else {
                     continuation.resume(value = responseData)
                 }
+
+                // 给用户弹出提示框
+                if (message != null) Toast.postShowWarningToast(message)
             } else {
                 val httpException = HttpException(response)
                 val message = HttpToolkit.getBadResponseMsg(httpException)
-                LogUntil.d("HttpRequest", message)
+                Toast.postShowWarningToast(message)
                 continuation.resumeWithException(httpException)
             }
         }
@@ -63,22 +66,17 @@ suspend fun <T> Call<T>.await(): T = suspendCoroutine { continuation ->
             if (call.isCanceled) {
                 LogUntil.d(msg = "请求已被取消")
             } else {
-                when (t) {
-                    is ConnectException -> {
-                        LogUntil.d(msg = "网络异常")
-                    }
+                val msg = when (t) {
+                    is ConnectException -> "网络异常"
 
-                    is SocketTimeoutException -> {
-                        LogUntil.d(msg = "请求超时")
-                    }
+                    is SocketTimeoutException -> "请求超时"
 
-                    else -> {
-                        LogUntil.d(msg = t.message ?: "未知异常")
-                    }
+                    else -> t.message ?: "未知异常"
                 }
-            }
 
-            LogUntil.d(exception = t as Exception)
+                LogUntil.d(msg)
+                Toast.postShowWarningToast(msg)
+            }
             continuation.resumeWithException(t)
         }
     })

@@ -10,8 +10,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.example.qm_app.components.loading.LoadingManager
-import com.example.qm_app.components.toast.ToastManager
+import com.example.qm_app.components.loading.Loading
+import com.example.qm_app.components.toast.Toast
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -27,13 +27,13 @@ fun ServiceScreen() {
             coroutineScope.launch {
                 // favoriteViewModel.getBannerList(body = emptyMap())
 //                delay(500)
-                ToastManager.showSuccessToast("自定义弹框展示")
+                Toast.showSuccessToast("自定义弹框展示")
                 delay(500)
 //                QmToastManager.showWarningToast("自定义弹框展示")
 
-                LoadingManager.show("数据加载中...")
+                Loading.show("数据加载中...")
                 delay(3000)
-                LoadingManager.hide()
+                Loading.hide()
             }
         }) {
             Text("发送请求")
