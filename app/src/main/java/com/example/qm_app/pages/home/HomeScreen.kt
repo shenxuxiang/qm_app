@@ -13,6 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import com.example.qm_app.common.QmApplication
 import com.example.qm_app.pages.home.components.BottomNavBar
@@ -34,19 +35,20 @@ val tabItems = listOf(
 @Composable
 fun HomeScreen() {
     val commonViewModel = QmApplication.commonViewModel
-    val bottomNavBarTab = commonViewModel.bottomNavBarTab.collectAsState()
+    val uiState by commonViewModel.uiState.collectAsState()
     val state = rememberPagerState(
         initialPage = 0,
-        pageCount = { tabItems.size })
+        pageCount = { tabItems.size }
+    )
 
-    LaunchedEffect(bottomNavBarTab.value) {
-        val index = tabItems.indexOfFirst { screen -> screen.route == bottomNavBarTab.value }
+    LaunchedEffect(uiState.bottomMenusTabKey) {
+        val index = tabItems.indexOfFirst { screen -> screen.route == uiState.bottomMenusTabKey }
         if (state.currentPage != index) state.scrollToPage(index)
     }
 
     LaunchedEffect(state.currentPage) {
         val screen = tabItems[state.currentPage]
-        if (screen.route != bottomNavBarTab.value) commonViewModel.navToMainScreen(tab = screen.route)
+        if (screen.route != uiState.bottomMenusTabKey) commonViewModel.navToMainScreen(tab = screen.route)
     }
 
     Scaffold(
@@ -55,7 +57,7 @@ fun HomeScreen() {
             .navigationBarsPadding(),
         bottomBar = {
             BottomNavBar(
-                tabKey = bottomNavBarTab.value,
+                tabKey = uiState.bottomMenusTabKey,
                 items = tabItems,
             ) { tab ->
                 commonViewModel.navToMainScreen(tab)

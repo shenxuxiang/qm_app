@@ -61,6 +61,7 @@ import com.example.qm_app.R
 import com.example.qm_app.common.QmApplication
 import com.example.qm_app.components.PullToRefreshColumn
 import com.example.qm_app.components.QmCheckbox
+import com.example.qm_app.router.Router
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
@@ -71,7 +72,7 @@ fun UserScreen(id: String) {
     val commonViewModel = QmApplication.commonViewModel
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val backStackEntry =
-        checkNotNull(QmApplication.navController.currentBackStackEntry) { "The NavController BackStackEntry Is Null" }
+        checkNotNull(Router.controller.currentBackStackEntry) { "The NavController BackStackEntry Is Null" }
     val savedStateHandle = backStackEntry.savedStateHandle
 
     Scaffold(
@@ -96,11 +97,11 @@ fun UserScreen(id: String) {
                         modifier = Modifier
                             .size(24.dp)
                             .clickable(onClick = {
-                                QmApplication.navController.previousBackStackEntry?.savedStateHandle?.set(
+                                Router.controller.previousBackStackEntry?.savedStateHandle?.set(
                                     "ResponseData",
                                     "Im Ok"
                                 )
-                                QmApplication.navController.popBackStack()
+                                Router.controller.popBackStack()
                             })
                     )
                 }
@@ -198,7 +199,7 @@ fun UserScreen(id: String) {
                     }
                     Button(onClick = {
                         savedStateHandle.set("CallbackData", "Hello World")
-                        QmApplication.navController.navigate("goods")
+                        Router.navigate("goods")
                     }) {
                         Text("To Goods")
                     }

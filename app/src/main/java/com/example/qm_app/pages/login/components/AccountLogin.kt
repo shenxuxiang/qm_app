@@ -22,12 +22,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.example.qm_app.common.QmApplication
 import com.example.qm_app.common.QmIcons
 import com.example.qm_app.components.ButtonWidget
 import com.example.qm_app.components.ButtonWidgetType
 import com.example.qm_app.components.QmIcon
 import com.example.qm_app.router.Route
+import com.example.qm_app.router.Router
 import com.example.qm_app.ui.theme.gray
 
 @Composable
@@ -94,7 +94,7 @@ fun AccountLogin() {
         ButtonWidget(
             text = "注册",
             type = ButtonWidgetType.Default,
-            onTap = { QmApplication.navController.navigate(Route.SignUpScreen.route) },
+            onTap = { Router.navigate(Route.SignUpScreen.route) },
             modifier = Modifier
                 .padding(top = 26.dp)
                 .fillMaxWidth()

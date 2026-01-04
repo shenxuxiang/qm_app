@@ -114,6 +114,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.unit)
     implementation(libs.androidx.compose.ui.text)
     implementation(libs.play.services.auth.api.phone)
+    implementation(libs.androidx.compose.foundation)
     kapt("com.google.dagger:hilt-android-compiler:2.50")  // 注解处理器
     implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
     implementation("androidx.navigation:navigation-compose:2.9.6")

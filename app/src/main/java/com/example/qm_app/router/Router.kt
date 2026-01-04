@@ -1,41 +1,66 @@
 package com.example.qm_app.router
 
-import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
-import androidx.compose.animation.core.tween
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.IntOffset
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.example.qm_app.CommonViewModel
-import com.example.qm_app.common.QmApplication
+import android.graphics.Bitmap
+import androidx.navigation.NavHostController
+import androidx.navigation.NavOptionsBuilder
+import androidx.savedstate.savedState
+import com.example.qm_app.common.ScreenShotUtils
 
-@Composable
-fun Router(startDestination: String) {
-    val navController = rememberNavController()
-    val commonViewModel = hiltViewModel<CommonViewModel>()
-    val animationSpec = tween<IntOffset>(durationMillis = 300)
+object Router {
 
-    QmApplication.navController = navController
-    QmApplication.commonViewModel = commonViewModel
+    private lateinit var _navController: NavHostController
 
-    NavHost(
-        navController,
-        startDestination,
-        enterTransition = { slideIntoContainer(towards = SlideDirection.Start, animationSpec) },
-        exitTransition = { slideOutOfContainer(towards = SlideDirection.Start, animationSpec) },
-        popEnterTransition = { slideIntoContainer(towards = SlideDirection.End, animationSpec) },
-        popExitTransition = { slideOutOfContainer(towards = SlideDirection.End, animationSpec) },
-    ) {
-        repeat(Route.allRoutes.size) { index ->
-            val route = Route.allRoutes[index]
-            composable(
-                route = route.route,
-                content = route.content,
-                arguments = route.arguments,
-                deepLinks = route.deepLinks,
-            )
+    /**
+     * 路由控制器
+     * */
+    val controller: NavHostController get() = _navController
+
+    /**
+     * 屏幕截图
+     * */
+    private var _previousScreenShotBitmap: Bitmap? = null
+
+    val previousScreenShotBitmap: Bitmap? get() = _previousScreenShotBitmap
+
+    fun init(controller: NavHostController) {
+        _navController = controller
+    }
+
+    /**
+     * 导航到目标页面
+     * 设置启动模式为 singleTop，避免用户多次点击导致同一个页面在返回栈中多次加载
+     * */
+    fun navigate(route: String) {
+        _previousScreenShotBitmap = ScreenShotUtils.captureFullScreen()
+        _navController.navigate(route) {
+            launchSingleTop = true
+            savedState()
         }
+    }
+
+    fun navigate(route: String, builder: NavOptionsBuilder.() -> Unit) {
+        _previousScreenShotBitmap = ScreenShotUtils.captureFullScreen()
+        _navController.navigate(route, builder)
+    }
+
+    /**
+     * 返回上一页
+     * */
+    fun navigateUp(): Boolean {
+        return _navController.navigateUp()
+    }
+
+    /**
+     * 返回上一页
+     * */
+    fun popBackStack(): Boolean {
+        return _navController.popBackStack()
+    }
+
+    /**
+     * 返回到指定页面
+     * */
+    fun popBackStack(route: String, inclusive: Boolean, saveState: Boolean): Boolean {
+        return _navController.popBackStack(route, inclusive, saveState)
     }
 }

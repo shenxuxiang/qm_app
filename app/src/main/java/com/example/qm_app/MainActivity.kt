@@ -10,10 +10,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
+import com.example.qm_app.common.ScreenShotUtils
 import com.example.qm_app.components.alert.AlertWidget
 import com.example.qm_app.components.loading.LoadingWidget
 import com.example.qm_app.components.toast.ToastWidget
-import com.example.qm_app.router.Router
+import com.example.qm_app.router.RouterHost
 import com.example.qm_app.ui.theme.QmTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,6 +25,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        ScreenShotUtils.init(this)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             QmTheme {
@@ -40,7 +42,7 @@ class MainActivity : ComponentActivity() {
                 )
 
                 Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
-                    Router(startDestination = "login")
+                    RouterHost(startDestination = "login")
                     AlertWidget()
                     ToastWidget()
                     LoadingWidget()

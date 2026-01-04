@@ -35,10 +35,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.qm_app.R
-import com.example.qm_app.common.QmApplication
 import com.example.qm_app.pages.login.components.AccountLogin
 import com.example.qm_app.pages.login.components.FastLogin
 import com.example.qm_app.router.Route
+import com.example.qm_app.router.Router
 import com.example.qm_app.ui.theme.black4
 import com.example.qm_app.ui.theme.corner10
 import com.example.qm_app.ui.theme.corner2
@@ -77,7 +77,7 @@ fun LoginScreen() {
                     .padding(top = 52.dp)
                     .size(94.dp)
                     .clickable(onClick = {
-                        QmApplication.navController.navigate(Route.SignUpScreen.route)
+                        Router.navigate(Route.SignUpScreen.route)
                     }),
             )
             Column(

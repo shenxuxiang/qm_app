@@ -26,15 +26,6 @@ class QmApplication() : Application() {
             }
 
         private lateinit var _navController: NavController
-
-        /**
-         * 全局 NavController，在 MainActivity 中进行赋值，只允许被赋值一次
-         * */
-        var navController: NavController
-            get() = _navController
-            set(controller) {
-                _navController = controller
-            }
     }
 
     override fun onCreate() {

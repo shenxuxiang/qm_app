@@ -1,10 +1,10 @@
 package com.example.qm_app.http
 
 import com.example.qm_app.common.LogUntil
-import com.example.qm_app.common.QmApplication
 import com.example.qm_app.common.TokenManager
 import com.example.qm_app.components.toast.Toast
 import com.example.qm_app.router.Route
+import com.example.qm_app.router.Router
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.HttpException
@@ -37,7 +37,7 @@ suspend fun <T> Call<T>.await(): T = suspendCoroutine { continuation ->
                             message = "用户暂未登录"
                             TokenManager.token = null
                             HttpToolkit.cancelAllPendingRequest()
-                            QmApplication.navController.navigate(route = Route.LoginScreen.route) {
+                            Router.navigate(route = Route.LoginScreen.route) {
                                 popUpTo(Route.HomeScreen.route) { inclusive = true }
                             }
                             continuation.resumeWithException(RuntimeException("请求已取消"))

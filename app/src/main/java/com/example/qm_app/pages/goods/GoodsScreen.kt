@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import com.example.qm_app.R
 import com.example.qm_app.common.QmApplication
 import com.example.qm_app.components.GoodsCategory
+import com.example.qm_app.router.Router
+import com.example.qm_app.router.RouterHost
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.onebone.toolbar.CollapsingToolbarScaffold
@@ -45,7 +47,7 @@ import me.onebone.toolbar.rememberCollapsingToolbarState
 @Composable
 fun GoodsScreen() {
     val commonViewModel = QmApplication.commonViewModel
-    val savedStateHandle = QmApplication.navController.currentBackStackEntry!!.savedStateHandle
+    val savedStateHandle = Router.controller.currentBackStackEntry!!.savedStateHandle
 
     val toolbarState =
         rememberCollapsingToolbarState(initial = savedStateHandle["toolbarHeight"] ?: Int.MAX_VALUE)

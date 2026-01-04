@@ -19,8 +19,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.qm_app.R
-import com.example.qm_app.common.QmApplication
 import com.example.qm_app.common.QmIcons
+import com.example.qm_app.router.Router
 import com.example.qm_app.ui.theme.black3
 import com.example.qm_app.ui.theme.black4
 
@@ -31,8 +31,7 @@ fun PageScaffold(
     actions: @Composable (RowScope.() -> Unit) = {},
     content: @Composable (paddingValues: PaddingValues) -> Unit,
 ) {
-    val navController = QmApplication.navController
-    val canPop = navController.previousBackStackEntry != null
+    val canPop = Router.controller.previousBackStackEntry != null
 
     Box(modifier = Modifier.fillMaxSize()) {
         val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -67,7 +66,7 @@ fun PageScaffold(
                                     .clickable(
                                         indication = null,
                                         interactionSource = null,
-                                        onClick = { navController.popBackStack() },
+                                        onClick = { Router.popBackStack() },
                                     )
                             )
                         }

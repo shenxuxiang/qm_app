@@ -8,6 +8,7 @@ import androidx.navigation.NavDeepLink
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
+import com.example.qm_app.components.SwipeBack
 import com.example.qm_app.pages.goods.GoodsScreen
 import com.example.qm_app.pages.home.HomeScreen
 import com.example.qm_app.pages.login.LoginScreen
@@ -49,7 +50,7 @@ sealed class Route(
     /**
      * 注册页
      * */
-    object SignUpScreen : Route(route = "signUp", content = { SignUpScreen() })
+    object SignUpScreen : Route(route = "signUp", content = { SwipeBack { SignUpScreen() } })
 
     /**
      * 用户
@@ -66,12 +67,12 @@ sealed class Route(
             navDeepLink { uriPattern = "qm_app://qm.com/user?id={id}" }
         ),
         content = {
-            UserScreen(id = it.arguments!!.getString("id", ""))
+            SwipeBack { UserScreen(id = it.arguments!!.getString("id", "")) }
         }
     )
 
     /**
      * 商品
      * */
-    object GoodsScreen : Route(route = "goods", content = { GoodsScreen() })
+    object GoodsScreen : Route(route = "goods", content = { SwipeBack { GoodsScreen() } })
 }
