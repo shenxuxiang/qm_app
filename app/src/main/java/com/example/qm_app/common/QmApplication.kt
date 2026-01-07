@@ -1,9 +1,9 @@
 package com.example.qm_app.common
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Application
 import android.content.Context
-import androidx.navigation.NavController
 import com.example.qm_app.CommonViewModel
 import dagger.hilt.android.HiltAndroidApp
 
@@ -25,7 +25,14 @@ class QmApplication() : Application() {
                 _commonViewModel = viewModel
             }
 
-        private lateinit var _navController: NavController
+
+        private lateinit var _activity: Activity
+
+        var activity: Activity
+            get() = _activity
+            set(activity) {
+                _activity = activity
+            }
     }
 
     override fun onCreate() {

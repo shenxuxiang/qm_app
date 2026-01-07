@@ -93,6 +93,7 @@ fun InputBox(
                 )
                 innerTextField()
             }
+            suffix()
             if (allowClear && value.isNotEmpty()) QmIcon(
                 icon = QmIcons.Stroke.CloseCircle,
                 tint = gray,
@@ -104,7 +105,6 @@ fun InputBox(
                         onClick = { onChange("") }
                     )
             )
-            suffix()
         }
     }
 }

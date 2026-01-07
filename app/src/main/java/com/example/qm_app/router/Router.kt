@@ -7,7 +7,6 @@ import androidx.savedstate.savedState
 import com.example.qm_app.common.ScreenShotUtils
 
 object Router {
-
     private lateinit var _navController: NavHostController
 
     /**
@@ -28,7 +27,7 @@ object Router {
 
     /**
      * 导航到目标页面
-     * 设置启动模式为 singleTop，避免用户多次点击导致同一个页面在返回栈中多次加载
+     * 设置启动模式为 singleTop，避免用户多次点击跳转按钮，导致同一个页面在返回栈中多次加载
      * */
     fun navigate(route: String) {
         _previousScreenShotBitmap = ScreenShotUtils.captureFullScreen()

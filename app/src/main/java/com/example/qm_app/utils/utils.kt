@@ -6,7 +6,14 @@ import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Base64
 import com.example.qm_app.common.QmAppConfig
+import com.example.qm_app.common.QmApplication
+import java.io.BufferedReader
 import java.io.ByteArrayOutputStream
+import java.io.InputStreamReader
+import kotlin.concurrent.thread
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -111,4 +118,28 @@ fun getFirstFrameVideo(context: Context, uri: Uri, quality: Int): String {
 
 fun getURL(path: String): String {
     return "${QmAppConfig.baseURL}${path}"
+}
+
+/**
+ * 加载 /app/src/main/assets 中的文件资源
+ * */
+suspend fun loadAssetsFile(fileName: String) = suspendCoroutine { continuation ->
+    thread {
+        try {
+            val context = QmApplication.context
+            val assetManager = context.assets
+            val inputStream = assetManager.open(fileName)
+            val read = BufferedReader(InputStreamReader(inputStream))
+            val json = StringBuilder()
+
+            read.use {
+                read.forEachLine {
+                    json.append(it)
+                }
+            }
+            continuation.resume(json.toString())
+        } catch (_: Exception) {
+            continuation.resumeWithException(RuntimeException("数据加载失败"))
+        }
+    }
 }

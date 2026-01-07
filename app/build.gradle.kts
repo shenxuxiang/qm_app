@@ -99,6 +99,7 @@ android {
 }
 
 dependencies {
+    implementation("com.holix.android:bottomsheetdialog-compose:1.5.0")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.1.1")
     implementation("com.squareup.retrofit2:retrofit:3.0.0")
     implementation("com.squareup.retrofit2:converter-gson:3.0.0")

@@ -1,6 +1,7 @@
 package com.example.qm_app.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
@@ -72,6 +73,7 @@ fun ButtonWidget(
             containerColor = bgColor,
             disabledContainerColor = bgColor,
         ),
+        contentPadding = PaddingValues(0.dp),
         modifier = modifier.then(
             other = Modifier
                 .padding(all = 0.dp)

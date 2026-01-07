@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.qm_app.ui.theme.black
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Stable
@@ -45,6 +47,107 @@ private data class LoadingState(val visible: Boolean, val message: String)
 
 @Composable
 fun LoadingWidget(
+    message: String,
+    onClose: () -> Unit,
+    visible: State<Boolean>,
+    alignment: Alignment = BiasAlignment(0f, -0.2f),
+) {
+    // Loading 延迟 200ms 再展示，同时也延迟 200 ms 后再隐藏
+    val delayMillis = 200L
+    val animationMillis = 200
+    val initialScale = 0.6f
+    val maxWidth = (LocalConfiguration.current.screenWidthDp * 0.8).dp
+    val initialOffset = with(LocalDensity.current) { -60.dp.toPx() }
+
+    // 设置该变量的目标就是添加一个开关，这样便于控制显示和隐藏动画的开启
+    val showLoading = remember { mutableStateOf(false) }
+
+    // 透明度、缩放、偏移量设置
+    val scaleAnimate = remember { Animatable(initialScale) }
+    val offsetAnimate = remember { Animatable(initialOffset) }
+    val alpha = animateFloatAsState( // 添加一个监听，当 alpha 完全隐藏时调用，该回调只在动画结束后运行
+        targetValue = if (showLoading.value) 1f else 0f,
+        animationSpec = tween(durationMillis = animationMillis),
+        finishedListener = { if (it == 0f) onClose() }
+    )
+
+    LaunchedEffect(visible.value) {
+        if (!visible.value && alpha.value == 0f) { // 如果 Loading 还没有展示，则直接关闭
+            onClose()
+        } else {
+            delay(delayMillis)
+            showLoading.value = visible.value
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        delay(delayMillis)
+        launch {
+            scaleAnimate.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = animationMillis)
+            )
+        }
+        launch {
+            offsetAnimate.animateTo(
+                targetValue = 0f,
+                animationSpec = tween(durationMillis = animationMillis)
+            )
+        }
+    }
+
+    Box(
+        contentAlignment = alignment,
+        modifier = Modifier
+            .fillMaxSize()
+            .alpha(alpha = alpha.value)
+            .background(color = black.copy(alpha = 0.2f))
+            .clickable(onClick = {}, indication = null, interactionSource = null),
+    ) {
+        Box(
+            modifier = Modifier
+                .widthIn(0.dp, maxWidth)
+                .wrapContentWidth(Alignment.CenterHorizontally)
+                .graphicsLayer(
+                    alpha = alpha.value,
+                    scaleY = scaleAnimate.value,
+                    scaleX = scaleAnimate.value,
+                    translationY = offsetAnimate.value,
+                )
+                .background(
+                    shape = RoundedCornerShape(4.dp),
+                    color = Color(0xFF000000).copy(alpha = 0.7f),
+                )
+                .padding(vertical = 14.dp, horizontal = 16.dp)
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                CircularProgressIndicator(
+                    strokeWidth = 2.dp,
+                    strokeCap = StrokeCap.Round,
+                    color = Color(0xFF3AC786),
+                    modifier = Modifier.size(22.dp)
+                )
+                Text(
+                    text = message,
+                    fontSize = 16.sp,
+                    lineHeight = 24.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(start = 10.dp),
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun LoadingWidgets(
     animationDuration: Int = 300,
     alignment: Alignment = BiasAlignment(0f, -0.2f),
 ) {
@@ -95,6 +198,7 @@ fun LoadingWidget(
             offsetAnimate.snapTo(initialOffset)
         }
     }
+
 
     if (alpha.value != 0f) {
         Box(

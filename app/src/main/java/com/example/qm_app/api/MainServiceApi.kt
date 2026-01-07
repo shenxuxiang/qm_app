@@ -12,4 +12,7 @@ interface MainServiceApi {
 
     @GET("v1.0/policyInformation/page")
     suspend fun queryNewsList(@Body body: Map<String, Any>): Call<ResponseData<List<Any>>>
+
+    @POST("v1.0/chinaProvince/region")
+    suspend fun queryRegionList(@Body body: Map<String, Int>): Call<ResponseData<List<Any>>>
 }

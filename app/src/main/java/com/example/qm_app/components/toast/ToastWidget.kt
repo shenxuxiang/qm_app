@@ -20,6 +20,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
@@ -47,6 +48,103 @@ private data class ToastState(
 
 @Composable
 fun ToastWidget(
+    message: String,
+    onClose: () -> Unit,
+    duration: Int = 3000,
+    toastType: Toast.ToastType = Toast.ToastType.Default,
+    alignment: Alignment = BiasAlignment(horizontalBias = 0f, verticalBias = -0.5f),
+) {
+    val initialScale = 0.6f
+    val animationMillis = 200
+    val maxWidth = (LocalConfiguration.current.screenWidthDp * 0.7).dp
+    val initialOffset = with(LocalDensity.current) { (-50).dp.toPx() }
+
+    val visible = remember { mutableStateOf(false) }
+    val endTime = rememberSaveable { System.currentTimeMillis() + duration }
+
+    val scaleAnimate = remember { Animatable(initialScale) }
+    val offsetAnimate = remember { Animatable(initialOffset) }
+    val alpha = animateFloatAsState(targetValue = if (visible.value) 1f else 0f) { alpha ->
+        if (alpha == 0f) onClose()
+    }
+
+    LaunchedEffect(Unit) {
+        // 展示 Toast
+        visible.value = true
+        launch {
+            scaleAnimate.animateTo(1f, animationSpec = tween(animationMillis))
+        }
+        launch {
+            offsetAnimate.animateTo(0f, animationSpec = tween(animationMillis))
+        }
+
+        // 倒计时，在指定时间后隐藏 Toast
+        val currentTime = System.currentTimeMillis()
+        if (currentTime < endTime) delay(endTime - currentTime)
+        visible.value = false
+    }
+
+    Box(
+        contentAlignment = alignment,
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        Box(
+            modifier = Modifier
+                .widthIn(120.dp, maxWidth)
+                .wrapContentWidth(Alignment.CenterHorizontally)
+                .graphicsLayer(
+                    alpha = alpha.value,
+                    scaleX = scaleAnimate.value,
+                    scaleY = scaleAnimate.value,
+                    translationY = offsetAnimate.value,
+                )
+                .background(
+                    color = Color(0xFF000000).copy(alpha = 0.7f),
+                    shape = RoundedCornerShape(4.dp)
+                )
+                .padding(vertical = 12.dp, horizontal = 16.dp)
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                when (toastType) {
+                    Toast.ToastType.Success -> {
+                        QmIcon(
+                            icon = QmIcons.Stroke.Success,
+                            size = 22.dp,
+                            tint = Color(0xFF3AC786),
+                            modifier = Modifier.padding(end = 6.dp)
+                        )
+                    }
+
+                    Toast.ToastType.Warning -> {
+                        QmIcon(
+                            icon = QmIcons.Stroke.Warn,
+                            size = 22.dp,
+                            tint = Color(0xFFFF4D4F),
+                            modifier = Modifier.padding(end = 6.dp)
+                        )
+                    }
+
+                    else -> {}
+                }
+                Text(
+                    text = message,
+                    fontSize = 16.sp,
+                    lineHeight = 24.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    maxLines = if (toastType == Toast.ToastType.Default) 2 else 1,
+                )
+            }
+        }
+    }
+}
+
+// 备份，莫删除
+@Composable
+fun ToastWidgets(
     animationDuration: Int = 300,
     alignment: Alignment = BiasAlignment(horizontalBias = 0f, verticalBias = -0.5f),
 ) {
