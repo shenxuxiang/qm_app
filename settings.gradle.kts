@@ -16,6 +16,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://maven.aliyun.com/repository/public") }  // 添加这一行
     }
 }
 

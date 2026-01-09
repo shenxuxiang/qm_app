@@ -1,12 +1,12 @@
 package com.example.qm_app.components.loading
 
+import android.view.View
 import androidx.compose.runtime.mutableStateOf
-import com.example.qm_app.components.InsertAndroidViewManager
+import com.example.qm_app.common.Overlay
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -15,7 +15,7 @@ object Loading {
     private val _coroutineScope = CoroutineScope(context = Dispatchers.Main + SupervisorJob())
 
     sealed class UiEvent {
-        data class ShowLoading(val message: String) : UiEvent()
+        data class ShowLoading(val message: String, val view: View? = null) : UiEvent()
         object HideLoading : UiEvent()
     }
 
@@ -39,31 +39,24 @@ object Loading {
         }
     }
 
-    private val _channel = Channel<UiEvent>(Channel.UNLIMITED)
 
     init {
         val visible = mutableStateOf(false)
         _coroutineScope.launch {
             EventBus.event.collect { event ->
-                _channel.send(element = event)
-            }
-        }
-
-        _coroutineScope.launch {
-            for (item in _channel) {
-                when (item) {
+                when (event) {
                     is UiEvent.HideLoading -> {
                         visible.value = false
                     }
 
                     is UiEvent.ShowLoading -> {
                         visible.value = true
-                        lateinit var removeChild: () -> Unit
-                        removeChild = InsertAndroidViewManager.appendChild {
+                        lateinit var dispose: () -> Unit
+                        dispose = Overlay.create(event.view) {
                             LoadingWidget(
                                 visible = visible,
-                                message = item.message,
-                                onClose = { removeChild() },
+                                message = event.message,
+                                onClose = { dispose() },
                             )
                         }
                     }
@@ -72,16 +65,16 @@ object Loading {
         }
     }
 
-    suspend fun show(message: String = "数据加载中···") {
-        EventBus.emit(UiEvent.ShowLoading(message))
+    suspend fun show(message: String = "数据加载中···", view: View? = null) {
+        EventBus.emit(UiEvent.ShowLoading(message, view))
     }
 
     suspend fun hide() {
         EventBus.emit(UiEvent.HideLoading)
     }
 
-    fun postShow(message: String = "数据加载中···") {
-        EventBus.postEmit(UiEvent.ShowLoading(message))
+    fun postShow(message: String = "数据加载中···", view: View? = null) {
+        EventBus.postEmit(UiEvent.ShowLoading(message, view))
     }
 
     fun postHide() {

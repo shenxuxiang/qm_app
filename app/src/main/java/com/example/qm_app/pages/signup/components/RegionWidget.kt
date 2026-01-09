@@ -23,8 +23,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.qm_app.common.QmApplication
+import com.example.qm_app.components.SelectedOptionItem
 import com.example.qm_app.components.SelectorModalOfRegion
-import com.example.qm_app.components.toast.Toast
 import com.example.qm_app.ui.theme.black4
 import com.example.qm_app.ui.theme.gray
 import kotlinx.coroutines.launch
@@ -60,7 +60,8 @@ fun RegionWidget(modifier: Modifier = Modifier, label: String, placeholder: Stri
                     .weight(1f)
                     .clickable(onClick = {
                         coroutineScope.launch {
-                            Toast.showSuccessToast("数据记载中，请稍后")
+                            showDialog.value = true
+                            if (uiState.regionData.isEmpty()) commonViewModel.queryRegionData()
                         }
                     }),
                 contentAlignment = Alignment.CenterStart
@@ -75,8 +76,9 @@ fun RegionWidget(modifier: Modifier = Modifier, label: String, placeholder: Stri
         }
         HorizontalDivider(thickness = 0.5.dp, color = Color(0xFFCCCCCC))
 
+        val selectedRegions = remember { mutableStateOf<List<SelectedOptionItem>>(emptyList()) }
         SelectorModalOfRegion(
-            value = "",
+            value = selectedRegions.value,
             open = showDialog.value,
             regionData = uiState.regionData,
             onChange = { showDialog.value = false },

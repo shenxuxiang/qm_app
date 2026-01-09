@@ -1,25 +1,36 @@
 package com.example.qm_app.components.toast
 
-import com.example.qm_app.components.InsertAndroidViewManager
+import android.view.View
+import com.example.qm_app.common.Overlay
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 object Toast {
+    // 协程
     private val _coroutineScope = CoroutineScope(context = Dispatchers.Main + SupervisorJob())
 
+    // Toast 类型
     enum class ToastType { Default, Warning, Success }
-    class UiEvent(val message: String, val duration: Int, val type: ToastType)
+
+    // Toast 事件对象，信息来源
+    class UiEvent(
+        val message: String,
+        val duration: Int,
+        val type: ToastType,
+        val view: View? = null,
+    )
+
+    // 事件总线
     object EventBus {
         private val _event = MutableSharedFlow<UiEvent>(
             replay = 1,
-            extraBufferCapacity = 99,
+            extraBufferCapacity = 9, // 最多 9 个
             onBufferOverflow = BufferOverflow.SUSPEND
         )
         val event = _event.asSharedFlow()
@@ -35,27 +46,19 @@ object Toast {
         }
     }
 
-    private val _channel = Channel<UiEvent>(Channel.UNLIMITED)
-
     init {
         _coroutineScope.launch {
             EventBus.event.collect { event ->
-                _channel.send(element = event)
-            }
-        }
-
-        _coroutineScope.launch {
-            for (item in _channel) {
-                lateinit var removeChild: () -> Unit
-                removeChild = InsertAndroidViewManager.appendChild {
+                lateinit var dispose: () -> Unit
+                dispose = Overlay.create(event.view) {
                     ToastWidget(
-                        message = item.message,
-                        duration = item.duration,
-                        onClose = { removeChild() },
-                        toastType = item.type,
+                        toastType = event.type,
+                        message = event.message,
+                        onClose = { dispose() },
+                        duration = event.duration,
                     )
                 }
-                delay(item.duration.toLong())
+                delay(event.duration.toLong())
                 delay(300)
             }
         }
@@ -63,26 +66,32 @@ object Toast {
 
     suspend fun showToast(
         message: String,
+        view: View? = null,
         duration: Int = 2000,
         type: ToastType = ToastType.Default,
     ) {
-        EventBus.emit(event = UiEvent(message, duration, type))
+        EventBus.emit(event = UiEvent(message, duration, type, view))
     }
 
-    suspend fun showSuccessToast(message: String, duration: Int = 2000) {
-        showToast(message, duration, type = ToastType.Success)
+    suspend fun showSuccessToast(message: String, duration: Int = 2000, view: View? = null) {
+        showToast(message, view, duration, type = ToastType.Success)
     }
 
-    suspend fun showWarningToast(message: String, duration: Int = 2000) {
-        showToast(message, duration, type = ToastType.Warning)
+    suspend fun showWarningToast(message: String, duration: Int = 2000, view: View? = null) {
+        showToast(message, view, duration, type = ToastType.Warning)
     }
 
-    fun postShowToast(message: String, duration: Int = 2000, type: ToastType = ToastType.Default) {
-        EventBus.postEmit(event = UiEvent(message, duration, type))
+    fun postShowToast(
+        message: String,
+        duration: Int = 2000,
+        type: ToastType = ToastType.Default,
+        view: View? = null,
+    ) {
+        EventBus.postEmit(event = UiEvent(message, duration, type, view))
     }
 
-    fun postShowSuccessToast(message: String, duration: Int = 2000) {
-        postShowToast(message, duration, type = ToastType.Success)
+    fun postShowSuccessToast(message: String, duration: Int = 2000, view: View? = null) {
+        postShowToast(message, duration, type = ToastType.Success, view)
     }
 
     fun postShowWarningToast(message: String, duration: Int = 2000) {

@@ -79,7 +79,7 @@ fun LoadingWidget(
             showLoading.value = visible.value
         }
     }
-
+    
     LaunchedEffect(Unit) {
         delay(delayMillis)
         launch {

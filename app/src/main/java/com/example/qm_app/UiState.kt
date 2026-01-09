@@ -4,11 +4,11 @@ import androidx.compose.runtime.Stable
 import com.example.qm_app.pages.home.HomeTabBar
 
 @Stable
-class RegionData(
+class RegionSourceTree(
     val value: String,
     val label: String,
     val fullName: String,
-    val children: List<RegionData>,
+    val children: List<RegionSourceTree>?,
 )
 
 @Stable
@@ -22,5 +22,5 @@ data class UiState(
     /**
      * 获取省市区
      * */
-    val regionData: List<RegionData> = emptyList(),
+    val regionData: List<RegionSourceTree> = emptyList(),
 )

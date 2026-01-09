@@ -12,7 +12,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
 import com.example.qm_app.common.QmApplication
 import com.example.qm_app.common.ScreenShotUtils
-import com.example.qm_app.components.InsertAndroidView
 import com.example.qm_app.router.RouterHost
 import com.example.qm_app.ui.theme.QmTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -43,10 +42,6 @@ class MainActivity : ComponentActivity() {
 
                 Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
                     RouterHost(startDestination = "login")
-                    // AlertWidget()
-                    // ToastWidget()
-                    // LoadingWidget()
-                    InsertAndroidView()
                 }
             }
         }
