@@ -7,6 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -16,9 +17,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun VerificationCode(onStart: () -> Boolean) {
+fun VerificationCode(onStart: (suspend () -> Boolean)) {
     // 初始倒计时长度(毫秒)
     val initialCountdown = 60000
+    val coroutineScope = rememberCoroutineScope()
     var endTime by rememberSaveable { mutableStateOf(value = 0L) }
 
     var countdown by remember(endTime) {
@@ -60,9 +62,11 @@ fun VerificationCode(onStart: () -> Boolean) {
                     indication = null,
                     interactionSource = null,
                     onClick = {
-                        val result = onStart()
-                        if (result) {
-                            endTime = System.currentTimeMillis() + initialCountdown
+                        coroutineScope.launch {
+                            val result = onStart()
+                            if (result) {
+                                endTime = System.currentTimeMillis() + initialCountdown
+                            }
                         }
                     }
                 )

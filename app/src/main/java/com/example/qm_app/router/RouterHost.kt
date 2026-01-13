@@ -18,7 +18,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun RouterHost(startDestination: String) {
-    val initialDurationMillis = 200
+    val initialDurationMillis = 400
     val navController = rememberNavController()
     val commonViewModel = hiltViewModel<CommonViewModel>()
 
@@ -32,7 +32,9 @@ fun RouterHost(startDestination: String) {
 
     LaunchedEffect(animationSpec.value) {
         if (animationSpec.value.durationMillis == 0) {
-            delay(300) // 延迟 300 ms 后在恢复 animationSpec 的动画时间
+            // 延迟 300 ms 后在恢复 animationSpec 的动画时间;
+            // 这个延迟时间一定要比滑动返回时的动画时间要大
+            delay(400)
             animationSpec.value = tween(durationMillis = initialDurationMillis)
         }
     }

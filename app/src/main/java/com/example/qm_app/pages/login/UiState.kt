@@ -8,4 +8,7 @@ data class UiState(
     val phone: String = "",
     val code: String = "",
     val account: String = "",
+    val password: String = "",
+    val checkedOfFast: Boolean = false,
+    val checkedOfAccount: Boolean = false,
 )

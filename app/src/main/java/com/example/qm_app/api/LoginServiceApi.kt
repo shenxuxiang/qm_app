@@ -17,4 +17,10 @@ interface LoginServiceApi {
      * */
     @POST("v1.0/auth/login/phoneCode")
     fun authLoginForPhoneCode(@Body body: Map<String, @JvmSuppressWildcards Any>): Call<ResponseData<Map<String, Any>>>
+
+    /**
+     * 密码登录
+     * */
+    @POST("v1.0/auth/login")
+    fun authLogin(@Body body: Map<String, @JvmSuppressWildcards Any>): Call<ResponseData<Map<String, Any>>>
 }

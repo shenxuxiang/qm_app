@@ -19,16 +19,21 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.qm_app.router.Router
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 
 object SwipeBackEventBus {
     class BackEvent()
 
-    private val _event = MutableStateFlow(value = BackEvent())
-    val event = _event.asStateFlow()
+    private val _event = MutableSharedFlow<BackEvent>(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.SUSPEND,
+    )
+    val event = _event.asSharedFlow()
 
     suspend fun emit() {
         _event.emit(BackEvent())

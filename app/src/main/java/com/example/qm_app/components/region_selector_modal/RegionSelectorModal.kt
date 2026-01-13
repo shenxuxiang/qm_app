@@ -1,24 +1,18 @@
-package com.example.qm_app.components
+package com.example.qm_app.components.region_selector_modal
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,43 +25,36 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.qm_app.RegionSourceTree
 import com.example.qm_app.common.QmIcons
+import com.example.qm_app.components.ButtonWidget
+import com.example.qm_app.components.ButtonWidgetType
+import com.example.qm_app.components.QmIcon
 import com.example.qm_app.components.toast.Toast
 import com.example.qm_app.entity.SelectedOptionItem
-import com.example.qm_app.modifier.boxShadow
 import com.example.qm_app.pages.login.components.InputBox
-import com.example.qm_app.ui.theme.black
 import com.example.qm_app.ui.theme.black3
 import com.example.qm_app.ui.theme.black4
 import com.example.qm_app.ui.theme.black6
-import com.example.qm_app.ui.theme.corner10
-import com.example.qm_app.ui.theme.corner12
 import com.example.qm_app.ui.theme.corner6
 import com.example.qm_app.ui.theme.gray
-import com.example.qm_app.ui.theme.primaryColor
 import com.example.qm_app.ui.theme.white
 import com.github.promeg.pinyinhelper.Pinyin
 import com.holix.android.bottomsheetdialog.compose.BottomSheetDialog
 import com.holix.android.bottomsheetdialog.compose.BottomSheetDialogProperties
 import kotlinx.coroutines.launch
 
-private data class DisplayRegionGroup(
+data class DisplayRegionGroup(
     val firstCharacter: String,
     val regions: MutableList<RegionSourceTree>,
 )
@@ -100,7 +87,7 @@ private fun regionDataFormat(regionData: List<RegionSourceTree>): MutableList<Di
 
 
 @Composable
-fun SelectorModalOfRegion(
+fun RegionSelectorModal(
     open: Boolean,
     onCancel: () -> Unit,
     value: List<SelectedOptionItem>,
@@ -142,7 +129,7 @@ fun SelectorModalOfRegion(
      * 那么此时，currentStickyHeaderIndex 取当前最大的那个就可以
      * */
     LaunchedEffect(displayRegionGroups.value) {
-        lazyListState.scrollToItem(0)
+        // lazyListState.scrollToItem(0)
 
         snapshotFlow { lazyListState.firstVisibleItemIndex }.collect {
             /**
@@ -209,6 +196,7 @@ fun SelectorModalOfRegion(
 
     fun handleSelectRegion(region: RegionSourceTree) {
         if (region.children?.isNotEmpty() ?: false) {
+            coroutineScope.launch { lazyListState.scrollToItem(0) }
             displayRegionGroups.value = regionDataFormat(region.children)
         }
 
@@ -219,10 +207,9 @@ fun SelectorModalOfRegion(
 
         // 如果选中列表中最后一个 region 已经没有子项了，那么当用户再次选中一个 region 时，
         // 应该替换而不是新增。
-        if (selectedRegions.isNotEmpty() && lastSelectedRegion?.children == null) selectedRegions.removeAt(
-            index = size - 1
-        )
-
+        if (selectedRegions.isNotEmpty() && lastSelectedRegion?.children == null) {
+            selectedRegions.removeAt(index = size - 1)
+        }
         selectedRegions.add(region)
     }
 
@@ -352,6 +339,7 @@ fun SelectorModalOfRegion(
                         } else {
                             /* 展示被选中的地区 */
                             DisplaySelectedRegionsWidget(selectedRegions) { index ->
+                                coroutineScope.launch { lazyListState.scrollToItem(0) }
                                 selectedRegions.removeRange(
                                     index,
                                     selectedRegions.size
@@ -417,7 +405,7 @@ fun SelectorModalOfRegion(
 
                 if (searchInput.isEmpty()) {
                     /* 首字母索引栏 */
-                    FirstCharIndexBar(
+                    DisplayFirstCharIndexBar(
                         modifier = Modifier.align(Alignment.CenterEnd),
                         characters = displayRegionFirstCharacterGroups.value,
                         currentStickyHeaderIndex = currentStickyHeaderIndex.value,
@@ -437,175 +425,6 @@ fun SelectorModalOfRegion(
                 }
                 /* 展示加载 Loading */
                 LoadingWidget(isShow = regionData.isEmpty())
-            }
-        }
-}
-
-/**
- * 展示选中的 Region
- * */
-@Composable
-private fun DisplaySelectedRegionsWidget(
-    selectedRegions: MutableList<RegionSourceTree>,
-    onTap: (index: Int) -> Unit,
-) {
-    FlowRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 6.dp, start = 12.dp, end = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        repeat(selectedRegions.size) { index ->
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .height(32.dp)
-                    .wrapContentWidth(Alignment.CenterHorizontally)
-                    .background(color = primaryColor, shape = corner6)
-                    .clickable(onClick = { onTap(index) })
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = selectedRegions[index].label,
-                        fontSize = 14.sp,
-                        color = white,
-                    )
-                    QmIcon(QmIcons.Stroke.Close, tint = white, size = 14.dp)
-                }
-            }
-        }
-    }
-}
-
-/**
- * 展示选项列表
- * */
-@Composable
-private fun DisplayRegionGroupsWidget(
-    modifier: Modifier,
-    lazyListState: LazyListState,
-    displayRegionGroups: List<DisplayRegionGroup>,
-    onTap: (region: RegionSourceTree) -> Unit,
-) {
-    LazyColumn(
-        state = lazyListState,
-        modifier = modifier.then(Modifier.fillMaxWidth()),
-    ) {
-        displayRegionGroups.forEach { (firstCharacter, regions) ->
-            stickyHeader {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(34.dp)
-                        .background(color = Color(0xFFE9E9E9))
-                        .padding(start = 10.dp),
-                    contentAlignment = Alignment.CenterStart,
-                ) {
-                    Text(
-                        text = firstCharacter,
-                        color = black,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-            }
-            itemsIndexed(regions) { _, region ->
-                Box(
-                    contentAlignment = Alignment.CenterStart,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(40.dp)
-                        .clickable(
-                            onClick = { onTap(region) },
-                        )
-                ) {
-                    Text(
-                        text = region.label,
-                        color = black3,
-                        fontSize = 16.sp,
-                        lineHeight = 16.sp,
-                        modifier = Modifier.padding(start = 10.dp)
-                    )
-                }
-            }
-        }
-    }
-}
-
-/**
- * 地区分组（首字母）
- * */
-@Composable
-private fun FirstCharIndexBar(
-    modifier: Modifier,
-    characters: List<String>,
-    currentStickyHeaderIndex: Int,
-    onTap: (index: Int) -> Unit,
-) {
-    Column(
-        modifier = modifier.then(
-            Modifier
-                .padding(end = 12.dp)
-                .boxShadow(corner = 12.dp)
-                .wrapContentWidth(Alignment.CenterHorizontally)
-                .background(color = white, shape = corner12)
-                .padding(vertical = 16.dp)
-        ),
-        verticalArrangement = Arrangement.spacedBy(space = 10.dp)
-    ) {
-        repeat(characters.size) { idx ->
-            Box(
-                modifier = Modifier
-                    .padding(horizontal = 3.dp)
-                    .size(18.dp)
-                    .clip(CircleShape)
-                    .background(
-                        color = if (currentStickyHeaderIndex == idx) primaryColor else white
-                    )
-                    .clickable(onClick = { onTap(idx) }),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = characters[idx],
-                    color = if (currentStickyHeaderIndex == idx) white else black3,
-                    fontSize = 12.sp,
-                    lineHeight = 12.sp,
-                )
-            }
-        }
-    }
-}
-
-/**
- * 加载中。。。
- * */
-@Composable
-private fun LoadingWidget(isShow: Boolean) {
-    if (isShow)
-        Box(
-            contentAlignment = BiasAlignment(0f, -0.2f),
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = white.copy(0.6f), shape = corner10)
-                .clickable(indication = null, interactionSource = null, onClick = {}),
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                CircularProgressIndicator(
-                    color = primaryColor,
-                    strokeWidth = 2.dp,
-                    strokeCap = StrokeCap.Round,
-                    modifier = Modifier.size(24.dp)
-                )
-                Text(
-                    text = "数据加载中···",
-                    fontSize = 14.sp,
-                    color = gray,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
             }
         }
 }

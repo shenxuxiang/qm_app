@@ -29,9 +29,7 @@ object LogUntil {
     fun d(exception: Exception, tag: String = TAG) {
         if (level <= DEBUG) {
             Log.d(tag, exception.message ?: "")
-            for (item in exception.stackTrace) {
-                Log.d(tag, item.toString())
-            }
+            exception.printStackTrace()
         }
     }
 

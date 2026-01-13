@@ -1,6 +1,8 @@
 package com.example.qm_app.components.toast
 
 import android.view.View
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import com.example.qm_app.common.Overlay
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +26,7 @@ object Toast {
         val duration: Int,
         val type: ToastType,
         val view: View? = null,
+        val alignment: Alignment? = null,
     )
 
     // 事件总线
@@ -56,6 +59,10 @@ object Toast {
                         message = event.message,
                         onClose = { dispose() },
                         duration = event.duration,
+                        alignment = event.alignment ?: BiasAlignment(
+                            horizontalBias = 0f,
+                            verticalBias = -0.5f
+                        ),
                     )
                 }
                 delay(event.duration.toLong())
@@ -69,16 +76,27 @@ object Toast {
         view: View? = null,
         duration: Int = 2000,
         type: ToastType = ToastType.Default,
+        alignment: Alignment? = null,
     ) {
-        EventBus.emit(event = UiEvent(message, duration, type, view))
+        EventBus.emit(event = UiEvent(message, duration, type, view, alignment))
     }
 
-    suspend fun showSuccessToast(message: String, duration: Int = 2000, view: View? = null) {
-        showToast(message, view, duration, type = ToastType.Success)
+    suspend fun showSuccessToast(
+        message: String,
+        duration: Int = 2000,
+        view: View? = null,
+        alignment: Alignment? = null,
+    ) {
+        showToast(message, view, duration, type = ToastType.Success, alignment)
     }
 
-    suspend fun showWarningToast(message: String, duration: Int = 2000, view: View? = null) {
-        showToast(message, view, duration, type = ToastType.Warning)
+    suspend fun showWarningToast(
+        message: String,
+        duration: Int = 2000,
+        view: View? = null,
+        alignment: Alignment? = null,
+    ) {
+        showToast(message, view, duration, type = ToastType.Warning, alignment)
     }
 
     fun postShowToast(
@@ -86,15 +104,26 @@ object Toast {
         duration: Int = 2000,
         type: ToastType = ToastType.Default,
         view: View? = null,
+        alignment: Alignment? = null,
     ) {
-        EventBus.postEmit(event = UiEvent(message, duration, type, view))
+        EventBus.postEmit(event = UiEvent(message, duration, type, view, alignment))
     }
 
-    fun postShowSuccessToast(message: String, duration: Int = 2000, view: View? = null) {
-        postShowToast(message, duration, type = ToastType.Success, view)
+    fun postShowSuccessToast(
+        message: String,
+        duration: Int = 2000,
+        view: View? = null,
+        alignment: Alignment? = null,
+    ) {
+        postShowToast(message, duration, type = ToastType.Success, view, alignment)
     }
 
-    fun postShowWarningToast(message: String, duration: Int = 2000) {
-        postShowToast(message, duration, type = ToastType.Warning)
+    fun postShowWarningToast(
+        message: String,
+        duration: Int = 2000,
+        view: View? = null,
+        alignment: Alignment? = null,
+    ) {
+        postShowToast(message, duration, type = ToastType.Warning, view, alignment)
     }
 }

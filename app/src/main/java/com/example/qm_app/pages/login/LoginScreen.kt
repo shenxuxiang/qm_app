@@ -25,11 +25,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,8 +41,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.qm_app.R
 import com.example.qm_app.pages.login.components.AccountLogin
 import com.example.qm_app.pages.login.components.FastLogin
-import com.example.qm_app.router.Route
-import com.example.qm_app.router.Router
 import com.example.qm_app.ui.theme.black4
 import com.example.qm_app.ui.theme.corner10
 import com.example.qm_app.ui.theme.corner2
@@ -47,10 +49,18 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen() {
+    val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
     val primaryColor = MaterialTheme.colorScheme.primary
     val loginViewModel = hiltViewModel<LoginViewModel>()
     val uiState by loginViewModel.uiState.collectAsState()
+
+    // 指针容器的宽度
+    val indicatorContainerWidth = rememberSaveable { mutableStateOf(0) }
+    val tabState = rememberPagerState(
+        initialPage = 0,
+        pageCount = { 2 }
+    )
 
     Box(
         modifier = Modifier
@@ -75,10 +85,7 @@ fun LoginScreen() {
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .padding(top = 52.dp)
-                    .size(94.dp)
-                    .clickable(onClick = {
-                        Router.navigate(Route.SignUpScreen.route)
-                    }),
+                    .size(94.dp),
             )
             Column(
                 modifier = Modifier
@@ -90,13 +97,17 @@ fun LoginScreen() {
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                val pagerState =
-                    rememberPagerState(initialPage = uiState.tabIndex, pageCount = { 2 })
-
                 Row(
                     modifier = Modifier
                         .padding(top = 20.dp)
                         .wrapContentSize(align = Alignment.Center)
+                        .onGloballyPositioned { coordinates ->
+                            if (indicatorContainerWidth.value == 0) {
+                                val spacerWidth = with(density) { 76.dp.toPx().toInt() }
+                                val textWidth = (coordinates.size.width - spacerWidth) / 2
+                                indicatorContainerWidth.value = coordinates.size.width - textWidth
+                            }
+                        }
                 ) {
                     val tab0Color =
                         animateColorAsState(
@@ -114,15 +125,14 @@ fun LoginScreen() {
                         lineHeight = 16.sp,
                         color = tab0Color.value,
                         modifier = Modifier
-                            .width(width = 66.dp)
                             .clickable(
                                 indication = null,
                                 interactionSource = null,
                                 onClick = {
                                     loginViewModel.updateTabIndex(0)
-                                    coroutineScope.launch { pagerState.scrollToPage(0) }
+                                    coroutineScope.launch { tabState.scrollToPage(0) }
                                 }
-                            ),
+                            )
                     )
                     Box(modifier = Modifier.size(width = 76.dp, height = 16.dp))
                     Text(
@@ -131,25 +141,31 @@ fun LoginScreen() {
                         lineHeight = 16.sp,
                         color = tab1Color.value,
                         modifier = Modifier
-                            .width(width = 66.dp)
                             .clickable(
                                 indication = null,
                                 interactionSource = null,
                                 onClick = {
                                     loginViewModel.updateTabIndex(1)
-                                    coroutineScope.launch { pagerState.scrollToPage(1) }
+                                    coroutineScope.launch { tabState.scrollToPage(1) }
                                 }
                             ),
                     )
                 }
+                /**
+                 * 计算容器宽度（Dp）
+                 * +20Dp 是因为要带上指针的宽度，
+                 * 最后计算指针动画偏移量时还要 -20Dp
+                 * */
+                val indicatorContainerWidthDp =
+                    with(density) { indicatorContainerWidth.value.toDp() + 20.dp }
                 Box(
                     modifier = Modifier
                         .padding(top = 4.dp)
-                        .width(width = 162.dp)
+                        .width(width = indicatorContainerWidthDp)
                 ) {
                     val indicatorOffset =
                         animateDpAsState(
-                            targetValue = if (uiState.tabIndex == 0) 0.dp else 142.dp,
+                            targetValue = if (uiState.tabIndex == 0) 0.dp else indicatorContainerWidthDp - 20.dp,
                             animationSpec = tween(durationMillis = 300)
                         )
                     Box(
@@ -162,7 +178,7 @@ fun LoginScreen() {
                 }
 
                 HorizontalPager(
-                    state = pagerState,
+                    state = tabState,
                     userScrollEnabled = false,
                     beyondViewportPageCount = 2,
                     modifier = Modifier
@@ -171,7 +187,7 @@ fun LoginScreen() {
                 ) { tab ->
                     when (tab) {
                         0 -> FastLogin(loginViewModel)
-                        1 -> AccountLogin()
+                        1 -> AccountLogin(loginViewModel)
                     }
                 }
             }

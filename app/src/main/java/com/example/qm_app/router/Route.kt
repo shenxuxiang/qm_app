@@ -45,7 +45,10 @@ sealed class Route(
     /**
      * 登录页
      * */
-    object LoginScreen : Route(route = "login", content = { LoginScreen() })
+    object LoginScreen : Route(
+        route = "login",
+        content = { LoginScreen() }
+    )
 
     /**
      * 注册页
