@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Context
-import com.example.qm_app.CommonViewModel
+import com.example.qm_app.pages.main.MainViewModel
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
@@ -14,15 +14,15 @@ class QmApplication() : Application() {
         lateinit var context: Context
             private set
 
-        private lateinit var _commonViewModel: CommonViewModel
+        private lateinit var _mainViewModel: MainViewModel
 
         /**
          * 全局 ViewModel，在 MainActivity 中进行赋值，只允许被赋值一次
          * */
-        var commonViewModel: CommonViewModel
-            get() = _commonViewModel
+        var mainViewModel: MainViewModel
+            get() = _mainViewModel
             set(viewModel) {
-                _commonViewModel = viewModel
+                _mainViewModel = viewModel
             }
 
 

@@ -116,7 +116,7 @@ fun getFirstFrameVideo(context: Context, uri: Uri, quality: Int): String {
     return bitmapToBase64(bitmap, quality)
 }
 
-fun getURL(path: String): String {
+fun getNetworkAssetURL(path: String): String {
     return "${QmAppConfig.baseURL}${path}"
 }
 

@@ -28,6 +28,7 @@ object ScreenShotUtils {
             view.height,
             Bitmap.Config.ARGB_8888
         )
+
         // 将创建的画布绑定到位图
         val canvas = Canvas(bitmap)
         // 开始绘制

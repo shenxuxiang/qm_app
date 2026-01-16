@@ -44,8 +44,8 @@ fun RegionWidget(
     onChange: (List<SelectedOptionItem>) -> Unit,
 ) {
     val showDialog = remember { mutableStateOf(false) }
-    val commonViewModel = QmApplication.commonViewModel
-    val uiState by commonViewModel.uiState.collectAsState()
+    val mainViewModel = QmApplication.mainViewModel
+    val uiState by mainViewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
     val focusManager = LocalFocusManager.current
@@ -78,7 +78,7 @@ fun RegionWidget(
                             focusManager.clearFocus()
                             coroutineScope.launch {
                                 showDialog.value = true
-                                if (uiState.regionData.isEmpty()) commonViewModel.queryRegionData()
+                                if (uiState.regionData.isEmpty()) mainViewModel.queryRegionData()
                             }
                         },
                     ),

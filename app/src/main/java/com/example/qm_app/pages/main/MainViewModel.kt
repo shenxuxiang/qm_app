@@ -1,7 +1,8 @@
-package com.example.qm_app
+package com.example.qm_app.pages.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.qm_app.common.TokenManager
 import com.example.qm_app.components.toast.Toast
 import com.example.qm_app.router.Route
 import com.example.qm_app.router.Router
@@ -16,8 +17,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * 主页的 MainViewModel 是全局共享的，所以它将会绑定到 QmApplication 下面，可以被所有页面共享。
+ * */
 @HiltViewModel
-class CommonViewModel @Inject constructor() : ViewModel() {
+class MainViewModel @Inject constructor() : ViewModel() {
     private val _uiState = MutableStateFlow(value = UiState())
     val uiState = _uiState.asStateFlow()
 
@@ -25,6 +29,15 @@ class CommonViewModel @Inject constructor() : ViewModel() {
      * 导航到主页下指定的 Tab 页
      * */
     fun navToMainScreen(tab: String) {
+        if (tab == MainTabBar.Mine.route && TokenManager.token == null) {
+            Toast.postShowWarningToast("用户未登录")
+            Router.navigate(Route.LoginScreen.route) {
+                popUpTo(Route.HomeScreen.route) { inclusive = true }
+            }
+
+            return
+        }
+
         _uiState.update { it.copy(bottomMenusTabKey = tab) }
         if (Router.controller.currentBackStackEntry?.destination?.route != Route.HomeScreen.route) {
             Router.navigate(Route.HomeScreen.route) {

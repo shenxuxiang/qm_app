@@ -26,8 +26,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -69,7 +67,7 @@ import java.io.File
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserScreen(id: String) {
-    val commonViewModel = QmApplication.commonViewModel
+    val mainViewModel = QmApplication.mainViewModel
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val backStackEntry =
         checkNotNull(Router.controller.currentBackStackEntry) { "The NavController BackStackEntry Is Null" }
@@ -90,20 +88,20 @@ fun UserScreen(id: String) {
                     scrolledContainerColor = Color(0xFFFF9900)
                 ),
                 navigationIcon = {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clickable(onClick = {
-                                Router.controller.previousBackStackEntry?.savedStateHandle?.set(
-                                    "ResponseData",
-                                    "Im Ok"
-                                )
-                                Router.controller.popBackStack()
-                            })
-                    )
+//                    Icon(
+//                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+//                        contentDescription = null,
+//                        tint = Color.White,
+//                        modifier = Modifier
+//                            .size(24.dp)
+//                            .clickable(onClick = {
+//                                Router.controller.previousBackStackEntry?.savedStateHandle?.set(
+//                                    "ResponseData",
+//                                    "Im Ok"
+//                                )
+//                                Router.controller.popBackStack()
+//                            })
+//                    )
                 }
             )
         }
@@ -183,17 +181,17 @@ fun UserScreen(id: String) {
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Button(onClick = {
-                        commonViewModel.navToMainScreen("home")
+                        mainViewModel.navToMainScreen("home")
                     }) {
                         Text("To Home")
                     }
                     Button(onClick = {
-                        commonViewModel.navToMainScreen("cart")
+                        mainViewModel.navToMainScreen("cart")
                     }) {
                         Text("To Cart")
                     }
                     Button(onClick = {
-                        commonViewModel.navToMainScreen("favorite")
+                        mainViewModel.navToMainScreen("favorite")
                     }) {
                         Text("To Favorite")
                     }

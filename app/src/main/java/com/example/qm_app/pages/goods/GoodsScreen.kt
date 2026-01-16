@@ -35,7 +35,6 @@ import com.example.qm_app.R
 import com.example.qm_app.common.QmApplication
 import com.example.qm_app.components.GoodsCategory
 import com.example.qm_app.router.Router
-import com.example.qm_app.router.RouterHost
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.onebone.toolbar.CollapsingToolbarScaffold
@@ -46,7 +45,7 @@ import me.onebone.toolbar.rememberCollapsingToolbarState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GoodsScreen() {
-    val commonViewModel = QmApplication.commonViewModel
+    val mainViewModel = QmApplication.mainViewModel
     val savedStateHandle = Router.controller.currentBackStackEntry!!.savedStateHandle
 
     val toolbarState =
@@ -158,7 +157,7 @@ fun GoodsScreen() {
                             .padding(vertical = 8.dp, horizontal = 12.dp)
                             .clickable(onClick = {
                                 if (index == 5) {
-                                    commonViewModel.navToMainScreen("home")
+                                    mainViewModel.navToMainScreen("home")
                                 }
                             })
                     ) {

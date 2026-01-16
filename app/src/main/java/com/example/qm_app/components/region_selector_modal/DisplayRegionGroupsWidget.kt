@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.qm_app.RegionSourceTree
+import com.example.qm_app.pages.main.RegionSourceTree
 import com.example.qm_app.ui.theme.black
 import com.example.qm_app.ui.theme.black3
 

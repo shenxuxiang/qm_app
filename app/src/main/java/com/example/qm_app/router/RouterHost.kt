@@ -11,20 +11,20 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.qm_app.CommonViewModel
 import com.example.qm_app.common.QmApplication
 import com.example.qm_app.components.SwipeBackEventBus
+import com.example.qm_app.pages.main.MainViewModel
 import kotlinx.coroutines.delay
 
 @Composable
 fun RouterHost(startDestination: String) {
     val initialDurationMillis = 400
     val navController = rememberNavController()
-    val commonViewModel = hiltViewModel<CommonViewModel>()
+    val mainViewModel = hiltViewModel<MainViewModel>()
 
     // 初始化 Router
     Router.init(navController)
-    QmApplication.commonViewModel = commonViewModel
+    QmApplication.mainViewModel = mainViewModel
 
     val animationSpec = remember {
         mutableStateOf(value = tween<IntOffset>(durationMillis = initialDurationMillis))

@@ -91,6 +91,8 @@ fun Swiper(
                 AsyncImage(
                     model = ImageRequest.Builder(context)
                         .data("http://60.169.69.3:30062${options[it]}")
+                        .allowHardware(false) // 禁用硬件位图
+                        .crossfade(true)
                         .build(),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,

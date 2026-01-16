@@ -1,7 +1,6 @@
-package com.example.qm_app
+package com.example.qm_app.pages.main
 
 import androidx.compose.runtime.Stable
-import com.example.qm_app.pages.home.HomeTabBar
 
 @Stable
 class RegionSourceTree(
@@ -15,9 +14,9 @@ class RegionSourceTree(
 data class UiState(
     /**
      * 主页底部 NavBar，
-     * 无论当前导航栈处于什么位置，都可以调用 commonViewModel.navToMainScreen(tab) 来切换到不同的 Tab
+     * 无论当前导航栈处于什么位置，都可以调用 mainViewModel.navToMainScreen(tab) 来切换到不同的 Tab
      * */
-    val bottomMenusTabKey: String = HomeTabBar.Home.route,
+    val bottomMenusTabKey: String = MainTabBar.Mine.route,
 
     /**
      * 获取省市区

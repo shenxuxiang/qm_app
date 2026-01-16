@@ -35,7 +35,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.qm_app.RegionSourceTree
 import com.example.qm_app.common.QmIcons
 import com.example.qm_app.components.ButtonWidget
 import com.example.qm_app.components.ButtonWidgetType
@@ -43,6 +42,7 @@ import com.example.qm_app.components.QmIcon
 import com.example.qm_app.components.toast.Toast
 import com.example.qm_app.entity.SelectedOptionItem
 import com.example.qm_app.pages.login.components.InputBox
+import com.example.qm_app.pages.main.RegionSourceTree
 import com.example.qm_app.ui.theme.black3
 import com.example.qm_app.ui.theme.black4
 import com.example.qm_app.ui.theme.black6

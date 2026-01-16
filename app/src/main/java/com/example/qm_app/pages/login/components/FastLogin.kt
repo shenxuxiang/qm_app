@@ -30,6 +30,8 @@ import com.example.qm_app.components.ButtonWidgetType
 import com.example.qm_app.components.loading.Loading
 import com.example.qm_app.components.toast.Toast
 import com.example.qm_app.pages.login.LoginViewModel
+import com.example.qm_app.router.Route
+import com.example.qm_app.router.Router
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -111,6 +113,9 @@ fun FastLogin(viewModel: LoginViewModel) {
                         Toast.showSuccessToast("登录成功")
                         UserManager.updateUserInfo(resp.data)
                         TokenManager.token = resp.data["token"] as String
+                        Router.navigate(Route.HomeScreen.route) {
+                            popUpTo(Route.LoginScreen.route) { inclusive = true }
+                        }
                     }
                 }
             },

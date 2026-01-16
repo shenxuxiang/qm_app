@@ -1,9 +1,7 @@
-package com.example.qm_app.pages.home
+package com.example.qm_app.pages.main
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
@@ -16,29 +14,31 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import com.example.qm_app.common.QmApplication
-import com.example.qm_app.pages.home.components.BottomNavBar
+import com.example.qm_app.pages.main.components.BottomNavBar
 import com.example.qm_app.pages.tab.agricultural.AgriculturalScreen
 import com.example.qm_app.pages.tab.home.TabHomeScreen
 import com.example.qm_app.pages.tab.mine.MineScreen
 import com.example.qm_app.pages.tab.release.ReleaseScreen
 import com.example.qm_app.pages.tab.service.ServiceScreen
 
+/**
+ * 底部导航栏菜单项，菜单顺序固定，不要改动
+ * */
 val tabItems = listOf(
-    HomeTabBar.Home,
-    HomeTabBar.Service,
-    HomeTabBar.Release,
-    HomeTabBar.AgriculturalTechnology,
-    HomeTabBar.Mine,
+    MainTabBar.Home,
+    MainTabBar.Service,
+    MainTabBar.Release,
+    MainTabBar.AgriculturalTechnology,
+    MainTabBar.Mine,
 )
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun HomeScreen() {
-    val commonViewModel = QmApplication.commonViewModel
-    val uiState by commonViewModel.uiState.collectAsState()
+    val mainViewModel = QmApplication.mainViewModel
+    val uiState by mainViewModel.uiState.collectAsState()
     val state = rememberPagerState(
-        initialPage = 0,
-        pageCount = { tabItems.size }
+        pageCount = { tabItems.size },
+        initialPage = tabItems.indexOfFirst { screen -> screen.route == uiState.bottomMenusTabKey },
     )
 
     LaunchedEffect(uiState.bottomMenusTabKey) {
@@ -48,7 +48,7 @@ fun HomeScreen() {
 
     LaunchedEffect(state.currentPage) {
         val screen = tabItems[state.currentPage]
-        if (screen.route != uiState.bottomMenusTabKey) commonViewModel.navToMainScreen(tab = screen.route)
+        if (screen.route != uiState.bottomMenusTabKey) mainViewModel.navToMainScreen(tab = screen.route)
     }
 
     Scaffold(
@@ -57,18 +57,18 @@ fun HomeScreen() {
             .navigationBarsPadding(),
         bottomBar = {
             BottomNavBar(
-                tabKey = uiState.bottomMenusTabKey,
                 items = tabItems,
+                tabKey = uiState.bottomMenusTabKey,
             ) { tab ->
-                commonViewModel.navToMainScreen(tab)
+                mainViewModel.navToMainScreen(tab)
             }
         },
-        contentWindowInsets = WindowInsets.navigationBars,
+        contentWindowInsets = WindowInsets(), // 一个空的 WindowInsets，不要使用默认值
     ) { paddingValues ->
         HorizontalPager(
             state = state,
             pageSize = PageSize.Fill,
-            beyondViewportPageCount = tabItems.size,
+            beyondViewportPageCount = 1,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),

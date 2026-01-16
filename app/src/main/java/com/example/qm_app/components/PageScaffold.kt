@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,6 +39,7 @@ fun PageScaffold(
 
     Box(modifier = Modifier.fillMaxSize()) {
         val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+        // 页面的背景
         Image(
             painter = background,
             contentDescription = null,
@@ -47,8 +47,11 @@ fun PageScaffold(
             contentScale = ContentScale.Crop,
         )
         Scaffold(
-            modifier = Modifier.fillMaxSize().navigationBarsPadding(),
+            modifier = Modifier
+                .fillMaxSize()
+                .navigationBarsPadding(),
             containerColor = Color.Transparent,
+            contentWindowInsets = WindowInsets(), // 设置为空的 WindowInsets，可以避免一些不必要的布局异常
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {

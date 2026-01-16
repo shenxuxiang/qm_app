@@ -28,7 +28,7 @@ import com.example.qm_app.ui.theme.corner10
 import com.example.qm_app.ui.theme.corner6
 import com.example.qm_app.ui.theme.gray
 import com.example.qm_app.ui.theme.white
-import com.example.qm_app.utils.getURL
+import com.example.qm_app.utils.getNetworkAssetURL
 
 @Composable
 fun NewsItemBox(news: NewsItem) {
@@ -44,7 +44,8 @@ fun NewsItemBox(news: NewsItem) {
         Row(modifier = Modifier.fillMaxSize()) {
             AsyncImage(
                 model = ImageRequest.Builder(context)
-                    .data(data = getURL(news.primaryUrl))
+                    .data(data = getNetworkAssetURL(news.primaryUrl))
+                    .allowHardware(enable = false)
                     .build(),
                 modifier = Modifier
                     .size(width = 96.dp, height = 60.dp)

@@ -4,7 +4,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,12 +15,13 @@ import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
@@ -37,25 +38,32 @@ fun PullToRefreshColumn(
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     refreshState: PullToRefreshState = rememberPullToRefreshState(),
-    content: @Composable ColumnScope.() -> Unit,
+    content: @Composable () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .pullToRefresh(
-                state = refreshState,
-                threshold = threshold,
-                onRefresh = onRefresh,
-                isRefreshing = isRefreshing,
-            )
-            .then(modifier)
-
+        modifier = modifier.then(
+            Modifier
+                .fillMaxSize()
+                .pullToRefresh(
+                    state = refreshState,
+                    threshold = threshold,
+                    onRefresh = onRefresh,
+                    isRefreshing = isRefreshing,
+                )
+        )
     ) {
         PullRefreshIndicator(
             threshold = threshold,
             refreshState = refreshState,
             isRefreshing = isRefreshing,
         )
-        content()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+        ) {
+            content()
+        }
     }
 }
 
@@ -67,12 +75,12 @@ fun PullRefreshIndicator(
     refreshState: PullToRefreshState,
 ) {
     val density = LocalDensity.current
-    val height = remember { mutableStateOf(0.dp) }
+    var height by remember { mutableStateOf(0.dp) }
     val thresholdToPx = remember { with(density) { threshold.toPx() } }
 
     LaunchedEffect(refreshState) {
         snapshotFlow { refreshState.distanceFraction }.collect {
-            height.value = with(density) { (refreshState.distanceFraction * thresholdToPx).toDp() }
+            height = with(density) { (refreshState.distanceFraction * thresholdToPx).toDp() }
         }
     }
 
@@ -80,8 +88,7 @@ fun PullRefreshIndicator(
         contentAlignment = BiasAlignment(0f, 0.5f),
         modifier = Modifier
             .fillMaxWidth()
-            .height(height.value)
-            .clipToBounds()
+            .height(height)
             .graphicsLayer(clip = true)
     ) {
         val context = if (isRefreshing) {

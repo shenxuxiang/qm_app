@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -51,21 +50,10 @@ fun TabHomeScreen() {
             initialFirstVisibleItemScrollOffset = 0, // uiState.firstVisibleItemScrollOffset,
         )
 
-        DisposableEffect(Unit) {
-            onDispose {
-                tabHomeViewModel.saveScrollState(
-                    listState.firstVisibleItemIndex,
-                    listState.firstVisibleItemScrollOffset
-                )
-            }
-        }
-
         val coroutineScope = rememberCoroutineScope()
         PullToRefreshColumn(
             threshold = 60.dp,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
+            modifier = Modifier.padding(paddingValues),
             isRefreshing = uiState.isRefreshing,
             onRefresh = {
                 coroutineScope.launch {
@@ -75,7 +63,7 @@ fun TabHomeScreen() {
                 }
             },
         ) {
-            LazyColumn(state = listState) {
+            LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
                 item {
                     Swiper(
                         index = uiState.bannerIndex,

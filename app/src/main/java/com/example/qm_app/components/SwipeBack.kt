@@ -1,12 +1,13 @@
 package com.example.qm_app.components
 
-import android.graphics.Bitmap
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -51,7 +52,7 @@ fun SwipeBack(content: @Composable () -> Unit) {
     val edge = remember { with(density) { 50.dp.toPx() } }
     val threshold = remember { with(density) { 100.dp.toPx() } }
     val canBack = remember { Router.controller.previousBackStackEntry != null }
-    val screenShot = rememberSaveable { Router.previousScreenShotBitmap as Bitmap } as Bitmap?
+    val screenShot by rememberSaveable { mutableStateOf(Router.previousScreenShotBitmap) }
 
     fun onDragEnd() {
         if (isStart && canBack) {
@@ -73,9 +74,9 @@ fun SwipeBack(content: @Composable () -> Unit) {
             }
         }
     }
-
+    
     Box(modifier = Modifier.fillMaxSize()) {
-        if (canBack)
+        if (canBack && screenShot != null)
             AsyncImage(
                 model = screenShot,
                 contentDescription = null,

@@ -1,4 +1,4 @@
-package com.example.qm_app.pages.home.components
+package com.example.qm_app.pages.main.components
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -28,11 +28,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.qm_app.components.QmIcon
-import com.example.qm_app.pages.home.HomeTabBar
+import com.example.qm_app.pages.main.MainTabBar
 
 @Composable
 fun BottomNavBarItem(
-    bottomTabBar: HomeTabBar,
+    bottomTabBar: MainTabBar,
     isSelected: Boolean,
     onTap: (value: String) -> Unit,
 ) {
@@ -74,7 +74,7 @@ fun BottomNavBarItem(
 }
 
 @Composable
-fun BottomNavBar(tabKey: String, items: List<HomeTabBar>, onChanged: (value: String) -> Unit) {
+fun BottomNavBar(tabKey: String, items: List<MainTabBar>, onChanged: (value: String) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
