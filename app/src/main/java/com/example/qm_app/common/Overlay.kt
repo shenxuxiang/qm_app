@@ -48,7 +48,7 @@ object Overlay {
         }
 
         // 移除
-        val dispose = {
+        fun dispose() {
             frameLayout.removeView(composeView)
             (anchorView.rootView as ViewGroup).removeView(frameLayout)
             // 释放掉 ComposeView 所占用的资源
@@ -64,6 +64,6 @@ object Overlay {
         frameLayout.addView(composeView)
         (anchorView.rootView as ViewGroup).addView(frameLayout)
 
-        return dispose
+        return ::dispose
     }
 }

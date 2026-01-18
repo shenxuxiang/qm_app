@@ -1,31 +1,29 @@
 package com.example.qm_app.pages.camera
 
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.FLASH_MODE_OFF
+import androidx.camera.core.ImageCapture.FLASH_MODE_ON
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -33,31 +31,28 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.example.qm_app.ui.theme.black
-import com.example.qm_app.ui.theme.primaryColor
-import com.example.qm_app.ui.theme.white
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.delay
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.launch
 
-private const val CAMERA_PERMISSION = android.Manifest.permission.CAMERA
+private const val CAMERA_PERMISSION = Manifest.permission.CAMERA
 
 @Composable
 fun CameraScreen() {
@@ -80,6 +75,14 @@ fun CameraScreen() {
             isGrantedPermission.value = isGranted
         }
 
+    val systemUiController = rememberSystemUiController()
+
+    LaunchedEffect(systemUiController) {
+        systemUiController.setStatusBarColor(
+            color = Color.Transparent,
+            darkIcons = false,
+        )
+    }
 
     /**
      * 延迟 400ms 的作用：CameraX 初始化时比较耗性能，到导致页面转场动画执行比较卡顿，
@@ -105,27 +108,30 @@ fun CameraScreen() {
     }
 }
 
+@SuppressLint("ConfigurationScreenWidthHeight")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CameraLayouts() {
     val view = LocalView.current
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
-    var photo by remember { mutableStateOf<Bitmap?>(null) }
+    val screenWidth = LocalConfiguration.current.screenWidthDp
+
+    val animateFloat = remember { Animatable(0f) }
+    var camera by remember { mutableStateOf<Camera?>(null) }
+    var flashMode by remember { mutableStateOf(FLASH_MODE_OFF) }
     var imageCapture by remember { mutableStateOf<ImageCapture?>(null) }
-    val statusBarHeight = WindowInsets.statusBars.getTop(LocalDensity.current)
     val previewView = remember {
         PreviewView(context).apply {
             scaleType = PreviewView.ScaleType.FILL_CENTER
             implementationMode = PreviewView.ImplementationMode.COMPATIBLE
         }
     }
-    val focusPosition = remember { mutableStateOf(Offset.Zero) }
-
-    var maxZoom = remember { 1f }
-    var minZoom = remember { 1f }
     var currentZoom = remember { 1f }
-    var camera by remember { mutableStateOf<Camera?>(null) }
+    var maxZoom by remember { mutableStateOf(1f) }
+    var minZoom by remember { mutableStateOf(1f) }
+
 
     LaunchedEffect(Unit) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
@@ -139,8 +145,10 @@ fun CameraLayouts() {
                     }
                 }
 
-                imageCapture =
-                    ImageCapture.Builder().build()
+                imageCapture = ImageCapture.Builder()
+                    .setTargetRotation(view.display.rotation)
+                    .setFlashMode(FLASH_MODE_OFF)
+                    .build()
 
                 val useCaseGroup = UseCaseGroup.Builder()
                     .addUseCase(preview)
@@ -154,162 +162,79 @@ fun CameraLayouts() {
                     CameraSelector.DEFAULT_BACK_CAMERA,
                     useCaseGroup,
                 )
+
                 // 变焦的最大和最小 zoom。
                 minZoom = camera!!.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
                 maxZoom = camera!!.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
+
                 currentZoom = camera!!.cameraInfo.zoomState.value?.zoomRatio ?: 1f
             },
             ContextCompat.getMainExecutor(context)
         )
-
-
-//        previewView.setOnTouchListener { v, event ->
-//            val meteringPoint1 =
-//                previewView.meteringPointFactory.createPoint(event?.x ?: 0f, event?.y ?: 0f)
-//            val action = FocusMeteringAction.Builder(meteringPoint1) // default AF|AE|AWB
-//                .setAutoCancelDuration(3, TimeUnit.SECONDS)
-//                .build()
-//
-//            println("${event?.x ?: 0f}, ${event?.y ?: 0f}")
-//            camera!!.cameraControl.startFocusAndMetering(action).addListener(
-//                {
-//                    println("=========================OK")
-//                },
-//                ContextCompat.getMainExecutor(context)
-//            )
-//            true
-//        }
     }
 
 
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .fillMaxSize()
-            .pointerInput(Unit) {
-                detectTransformGestures(
-                    panZoomLock = true,
-                    onGesture = { _, _, zoom, _ ->
-                        currentZoom = (currentZoom * zoom).coerceIn(minZoom, maxZoom)
-                        camera!!.cameraControl.setZoomRatio(currentZoom)
-                    }
-                )
-            },
-    ) {
-        AndroidView(
-            factory = { previewView },
-            modifier = Modifier.fillMaxSize(),
-        )
-        val screenWidth = LocalConfiguration.current.screenWidthDp
-        val boxW = (screenWidth * 0.75).toInt()
-        val boxH = (boxW / 0.63).toInt();
-
+    Column(modifier = Modifier.fillMaxSize()) {
+        Header(flashMode = flashMode, modifier = Modifier.weight(1f)) {
+            if (flashMode == FLASH_MODE_ON) {
+                flashMode = FLASH_MODE_OFF
+                imageCapture!!.flashMode = FLASH_MODE_OFF
+            } else {
+                flashMode = FLASH_MODE_ON
+                imageCapture!!.flashMode = FLASH_MODE_ON
+            }
+        }
+        /* 相机预览部分，宽高比 3:4（因为拍摄图像的宽高比默认就是 3:4） */
+        val previewHeight = (screenWidth * 1.333).toInt()
         Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(width = boxW.dp, height = boxH.dp)
-                .border(BorderStroke(3.dp, white))
+                .fillMaxWidth()
+                .height(previewHeight.dp)
+                .clipToBounds() // 因为最后一个 Box 不能严丝合缝的覆盖容器，所以这里加一个按照边界裁剪，这样才能完全覆盖
                 .pointerInput(Unit) {
-                    detectTapGestures(
-                        onTap = { offset ->
-                            val meteringPoint1 =
-                                previewView.meteringPointFactory.createPoint(offset.x, offset.y)
-                            val action =
-                                FocusMeteringAction.Builder(meteringPoint1) // default AF|AE|AWB
-                                    .setAutoCancelDuration(3, TimeUnit.SECONDS)
-                                    .build()
-                            focusPosition.value = offset
-                            camera!!.cameraControl.startFocusAndMetering(action).addListener(
-                                {
-                                    println("=========================OK")
-                                },
-                                ContextCompat.getMainExecutor(context)
-                            )
+                    detectTransformGestures(
+                        panZoomLock = true,
+                        onGesture = { _, _, zoom, _ ->
+                            currentZoom = (currentZoom * zoom).coerceIn(minZoom, maxZoom)
+                            camera!!.cameraControl.setZoomRatio(currentZoom)
                         }
                     )
-                }
-//                .clickable(onClick = {
-//                    imageCapture?.takePicture(
-//                        ContextCompat.getMainExecutor(context),
-//                        object : ImageCapture.OnImageCapturedCallback() {
-//                            override fun onCaptureSuccess(image: ImageProxy) {
-//                                val bitmap = image.toBitmap()
-//                                photo = bitmap
-//                            }
-//
-//                            override fun onError(exception: ImageCaptureException) {
-//                                super.onError(exception)
-//                                exception.printStackTrace()
-//                            }
-//                        }
-//                    )
-//                })
+                },
         ) {
+            /* 相机预览 */
+            AndroidView(
+                factory = { previewView },
+                modifier = Modifier.fillMaxSize(),
+            )
+            /* 聚焦矩形框 */
+            FocusBox(
+                camera = camera,
+                previewView = previewView,
+                previewWidth = screenWidth,
+                previewHeight = previewHeight,
+            )
+            /* 遮罩（拍照时，屏幕需要闪一下，来模拟拍照的效果） */
             Box(
                 modifier = Modifier
-                    .offset {
-                        IntOffset(
-                            x = focusPosition.value.x.toInt() - 30.dp.toPx().toInt(),
-                            y = focusPosition.value.y.toInt() - 30.dp.toPx().toInt(),
-                        )
-                    }
-                    .size(60.dp)
-                    .border(width = 1.dp, color = primaryColor)
-                    .align(Alignment.TopStart)
+                    .fillMaxWidth()
+                    .height(previewHeight.dp)
+                    .alpha(animateFloat.value)
+                    .background(color = black)
             )
         }
-
-
-
-
-
-        if (photo != null) {
-            AsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(photo)
-                    .allowHardware(false)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Inside,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable(onClick = {
-                        println("====================oinclick")
-                        photo = null
-                    })
-            )
-        }
-    }
-}
-
-
-@Composable
-fun CameraLayout() {
-    val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val cameraController = remember { LifecycleCameraController(context) }
-
-    val previewView = remember {
-        PreviewView(context).apply {
-            scaleType = PreviewView.ScaleType.FILL_CENTER
-            cameraController.cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-            cameraController.bindToLifecycle(lifecycleOwner)
-            cameraController.enableTorch(false)
-
-            // 设置控制器
-            controller = cameraController
-        }
-    }
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        AndroidView(
-            modifier = Modifier.fillMaxSize(),
-            factory = { previewView }
-        )
-        Box(
+        Footer(
+            imageCapture = imageCapture,
             modifier = Modifier
-                .size(200.dp)
-                .background(color = primaryColor)
+                .fillMaxWidth()
+                .weight(1f),
+            onTakePicture = {
+                coroutineScope.launch {
+                    animateFloat.animateTo(1f, animationSpec = tween(200))
+                    animateFloat.animateTo(0f, animationSpec = tween(200))
+                }
+            }
         )
     }
 }
+

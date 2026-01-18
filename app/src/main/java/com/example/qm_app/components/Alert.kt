@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +28,7 @@ import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -40,7 +42,7 @@ import kotlinx.coroutines.launch
 
 sealed class AlertContent {
     data class TextContent(val message: String) : AlertContent()
-    class ComposableContent(val content: @Composable () -> Unit) : AlertContent()
+    class ComposableContent(val content: @Composable (() -> Unit) -> Unit) : AlertContent()
 }
 
 class AlertUiEvent private constructor(
@@ -51,8 +53,10 @@ class AlertUiEvent private constructor(
     val confirmText: String,
     val onCancel: (() -> Unit)?,
     val onConfirm: (() -> Unit)?,
-    val footer: (@Composable () -> Unit)?,
+    val footer: @Composable ((() -> Unit) -> Unit)?,
     val alignment: Alignment,
+    val contentPadding: PaddingValues,
+    val corner: Shape,
 ) {
     constructor(
         text: String,
@@ -62,8 +66,10 @@ class AlertUiEvent private constructor(
         confirmText: String = "确定",
         onCancel: (() -> Unit)? = null,
         onConfirm: (() -> Unit)? = null,
-        footer: (@Composable () -> Unit)? = null,
-        alignment: Alignment = BiasAlignment(0f, -0.2f),
+        footer: (@Composable (() -> Unit) -> Unit)? = null,
+        alignment: Alignment,
+        contentPadding: PaddingValues,
+        corner: Shape,
     ) : this(
         content = AlertContent.TextContent(text),
         showCancel,
@@ -73,19 +79,23 @@ class AlertUiEvent private constructor(
         onCancel,
         onConfirm,
         footer,
-        alignment
+        alignment,
+        contentPadding,
+        corner,
     )
 
     constructor(
-        content: @Composable () -> Unit,
+        content: @Composable ((() -> Unit) -> Unit),
         showCancel: Boolean = true,
         showConfirm: Boolean = true,
         cancelText: String = "取消",
         confirmText: String = "确定",
         onCancel: (() -> Unit)? = null,
         onConfirm: (() -> Unit)? = null,
-        footer: (@Composable () -> Unit)? = null,
-        alignment: Alignment = BiasAlignment(0f, -0.2f),
+        footer: @Composable ((() -> Unit) -> Unit)? = null,
+        alignment: Alignment,
+        contentPadding: PaddingValues,
+        corner: Shape,
     ) : this(
         content = AlertContent.ComposableContent(content),
         showCancel,
@@ -96,6 +106,8 @@ class AlertUiEvent private constructor(
         onConfirm,
         footer,
         alignment,
+        contentPadding,
+        corner,
     )
 
     @Composable
@@ -134,6 +146,7 @@ class AlertUiEvent private constructor(
             }
         }
 
+        // 系统返回键拦截
         val onBackPressedDispatcher =
             LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
         DisposableEffect(Unit) {
@@ -161,7 +174,7 @@ class AlertUiEvent private constructor(
         ) {
             Box(
                 modifier = Modifier
-                    .padding(horizontal = 33.dp)
+                    .padding(contentPadding)
                     .fillMaxWidth()
                     .graphicsLayer(
                         translationY = offsetAnimate.value,
@@ -169,7 +182,7 @@ class AlertUiEvent private constructor(
                         scaleY = scaleAnimate.value,
                         alpha = alpha
                     )
-                    .clip(corner10)
+                    .clip(corner)
                     .background(color = white)
             ) {
                 Column(
@@ -188,7 +201,9 @@ class AlertUiEvent private constructor(
                                 .fillMaxWidth(),
                         )
                     } else {
-                        (content as AlertContent.ComposableContent).content
+                        (content as AlertContent.ComposableContent).content {
+                            showAlert.value = false
+                        }
                     }
                     // Footer 部分
                     if (footer == null) {
@@ -220,7 +235,7 @@ class AlertUiEvent private constructor(
                                 )
                         }
                     } else {
-                        footer
+                        footer { showAlert.value = false }
                     }
                 }
             }
@@ -231,14 +246,17 @@ class AlertUiEvent private constructor(
 object Alert {
     fun confirm(
         view: View,
-        content: @Composable () -> Unit,
+        content: @Composable (() -> Unit) -> Unit,
         showCancel: Boolean = true,
         showConfirm: Boolean = true,
         cancelText: String = "取消",
         confirmText: String = "确定",
         onCancel: (() -> Unit)? = null,
         onConfirm: (() -> Unit)? = null,
-        footer: (@Composable () -> Unit)? = null,
+        footer: (@Composable (() -> Unit) -> Unit)? = null,
+        alignment: Alignment = BiasAlignment(0f, -0.2f),
+        contentPadding: PaddingValues = PaddingValues(horizontal = 33.dp),
+        corner: Shape = corner10,
     ) {
         lateinit var dispose: () -> Unit
         dispose = Overlay.create(view) {
@@ -251,6 +269,9 @@ object Alert {
                 onCancel,
                 onConfirm,
                 footer,
+                alignment,
+                contentPadding,
+                corner,
             ).create(dispose = { dispose() })
         }
     }
@@ -264,7 +285,10 @@ object Alert {
         confirmText: String = "确定",
         onCancel: (() -> Unit)? = null,
         onConfirm: (() -> Unit)? = null,
-        footer: (@Composable () -> Unit)? = null,
+        footer: (@Composable (() -> Unit) -> Unit)? = null,
+        alignment: Alignment = BiasAlignment(0f, -0.2f),
+        contentPadding: PaddingValues = PaddingValues(horizontal = 33.dp),
+        corner: Shape = corner10,
     ) {
         lateinit var dispose: () -> Unit
         dispose = Overlay.create(view) {
@@ -277,6 +301,9 @@ object Alert {
                 onCancel,
                 onConfirm,
                 footer,
+                alignment,
+                contentPadding,
+                corner,
             ).create(dispose = { dispose() })
         }
     }

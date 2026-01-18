@@ -33,6 +33,7 @@ sealed class QmIcons(val icon: String) {
         object Pause : QmIcons("\ue64d")
         object Play : QmIcons("\ue648")
         object Success : QmIcons("\ue628")
+        object FlashLight : QmIcons("\ue64e")
 
         // 底部菜单栏未选中
         object TabBarMenuHome : QmIcons("\ue61a")

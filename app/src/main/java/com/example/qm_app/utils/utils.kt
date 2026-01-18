@@ -1,15 +1,20 @@
 package com.example.qm_app.utils
 
+import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Base64
 import com.example.qm_app.common.QmAppConfig
 import com.example.qm_app.common.QmApplication
 import java.io.BufferedReader
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.InputStreamReader
+import java.text.SimpleDateFormat
 import kotlin.concurrent.thread
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -142,4 +147,41 @@ suspend fun loadAssetsFile(fileName: String) = suspendCoroutine { continuation -
             continuation.resumeWithException(RuntimeException("数据加载失败"))
         }
     }
+}
+
+/**
+ * 生成 uuid
+ * */
+fun uuid(): String {
+    val sdf = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss")
+    return "${sdf.format(System.currentTimeMillis())}-${Math.random().toString().substring(2)}"
+}
+
+
+/**
+ * 将文件保存到本地相册
+ * */
+fun saveImageToGallery(context: Context, sourceFile: File) {
+    val displayName = "qm_app_${uuid()}.jpeg"
+
+    val contentValues = ContentValues().apply {
+        put(MediaStore.MediaColumns.DISPLAY_NAME, displayName)
+        put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+        put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+    }
+
+    val contentResolver = context.contentResolver
+    val imageUri = contentResolver.insert(
+        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+        contentValues
+    ) ?: return
+
+    contentResolver.openOutputStream(imageUri)?.use { outputStream ->
+        sourceFile.inputStream().use { inputStream ->
+            inputStream.copyTo(outputStream)
+        }
+    }
+
+    // 删除临时文件
+    // sourceFile.delete()
 }
