@@ -91,5 +91,13 @@ sealed class Route(
     /**
      * 相机界面
      * */
-    object CameraScreen : Route(route = "camera", content = { CameraScreen() })
+    object CameraScreen : Route(
+        route = "camera/{requestType}",
+        arguments = listOf(navArgument(name = "requestType") {
+            defaultValue = "1"
+            type = NavType.StringType
+        }),
+        content = { backStateEntry ->
+            CameraScreen(requestType = backStateEntry.arguments?.getString("requestType") ?: "1")
+        })
 }

@@ -32,6 +32,7 @@ import com.example.qm_app.ui.theme.black4
 fun PageScaffold(
     title: String,
     actions: @Composable (RowScope.() -> Unit) = {},
+    bottomBar: @Composable () -> Unit = {},
     background: Painter = painterResource(R.drawable.background_img_variant),
     content: @Composable (paddingValues: PaddingValues) -> Unit,
 ) {
@@ -47,11 +48,12 @@ fun PageScaffold(
             contentScale = ContentScale.Crop,
         )
         Scaffold(
+            bottomBar = bottomBar,
+            containerColor = Color.Transparent,
+            contentWindowInsets = WindowInsets(), // 设置为空的 WindowInsets，可以避免一些不必要的布局异常
             modifier = Modifier
                 .fillMaxSize()
                 .navigationBarsPadding(),
-            containerColor = Color.Transparent,
-            contentWindowInsets = WindowInsets(), // 设置为空的 WindowInsets，可以避免一些不必要的布局异常
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {

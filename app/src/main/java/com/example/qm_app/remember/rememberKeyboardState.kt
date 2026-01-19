@@ -48,9 +48,9 @@ fun rememberKeyboardState(): KeyboardState {
             view.getWindowVisibleDisplayFrame(rect)
             // 获取根视图的完整高度（整个屏幕高度，含状态栏、导航栏部分）
             val screenHeight = view.rootView.height
-            val keypadHeight = screenHeight - rect.bottom
+            val keyboardHeight = screenHeight - rect.bottom
             // 如果键盘高度超过屏幕高度的 25%，则认为键盘显示
-            keyboardState.update(if (keypadHeight > screenHeight * 0.25) KeyboardState.Opened else KeyboardState.Closed)
+            keyboardState.update(if (keyboardHeight > screenHeight * 0.25) KeyboardState.Opened else KeyboardState.Closed)
         }
 
         view.viewTreeObserver.addOnGlobalLayoutListener(onGlobalLayoutListener)

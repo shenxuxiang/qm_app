@@ -13,8 +13,6 @@ android {
         version = release(36)
     }
 
-
-
     defaultConfig {
         applicationId = "com.example.qm_app"
         minSdk = 28

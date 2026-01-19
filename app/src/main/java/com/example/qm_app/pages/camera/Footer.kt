@@ -44,7 +44,12 @@ import com.example.qm_app.utils.saveImageToGallery
 import java.io.File
 
 @Composable
-fun Footer(modifier: Modifier = Modifier, imageCapture: ImageCapture?, onTakePicture: () -> Unit) {
+fun Footer(
+    requestType: String,
+    imageCapture: ImageCapture?,
+    modifier: Modifier = Modifier,
+    onTakePicture: () -> Unit
+) {
     val context = LocalContext.current
     val anchorView = LocalView.current
     var photo by remember { mutableStateOf<Bitmap?>(null) }
@@ -152,10 +157,11 @@ fun Footer(modifier: Modifier = Modifier, imageCapture: ImageCapture?, onTakePic
                         tint = white, // MaterialTheme.colorScheme.primary,
                         size = 36.dp,
                         modifier = Modifier.clickable(onClick = {
-                            Router.controller.previousBackStackEntry?.savedStateHandle?.set(
-                                "arguments",
-                                photo
-                            )
+                            Router.controller.previousBackStackEntry?.savedStateHandle?.let {
+                                it["arguments"] = photo
+                                it["requestType"] = requestType
+                            }
+
                             Router.popBackStack()
                         })
                     )
@@ -165,6 +171,9 @@ fun Footer(modifier: Modifier = Modifier, imageCapture: ImageCapture?, onTakePic
                         tint = white, // MaterialTheme.colorScheme.primary,
                         size = 36.dp,
                         modifier = Modifier.clickable(onClick = {
+                            Router.controller.previousBackStackEntry?.savedStateHandle?.let {
+                                it["requestType"] = requestType
+                            }
                             Router.popBackStack()
                         })
                     )

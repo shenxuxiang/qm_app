@@ -62,4 +62,16 @@ object Router {
     fun popBackStack(route: String, inclusive: Boolean, saveState: Boolean): Boolean {
         return _navController.popBackStack(route, inclusive, saveState)
     }
+
+    /**
+     * 路由中的占位符替换
+     * */
+    fun replace(pattern: String, replacement: Map<String, String>): String {
+        var result = pattern
+        for ((k, v) in replacement) {
+            val reg = """\{${k}\}""".toRegex()
+            result = result.replace(reg, v)
+        }
+        return result
+    }
 }

@@ -55,7 +55,7 @@ import kotlinx.coroutines.launch
 private const val CAMERA_PERMISSION = Manifest.permission.CAMERA
 
 @Composable
-fun CameraScreen() {
+fun CameraScreen(requestType: String) { // 请求类型，在拍摄成功后，返回给上一个页面，用来识别是哪种请求
     val context = LocalContext.current
     val showCamera = rememberSaveable { mutableStateOf(false) }
 
@@ -104,14 +104,14 @@ fun CameraScreen() {
         color = black,
         modifier = Modifier.fillMaxSize(),
     ) {
-        if (showCamera.value && isGrantedPermission.value) CameraLayouts()
+        if (showCamera.value && isGrantedPermission.value) CameraLayouts(requestType)
     }
 }
 
 @SuppressLint("ConfigurationScreenWidthHeight")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CameraLayouts() {
+fun CameraLayouts(requestType: String) {
     val view = LocalView.current
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -131,7 +131,6 @@ fun CameraLayouts() {
     var currentZoom = remember { 1f }
     var maxZoom by remember { mutableStateOf(1f) }
     var minZoom by remember { mutableStateOf(1f) }
-
 
     LaunchedEffect(Unit) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
@@ -224,17 +223,17 @@ fun CameraLayouts() {
             )
         }
         Footer(
+            requestType,
             imageCapture = imageCapture,
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            onTakePicture = {
-                coroutineScope.launch {
-                    animateFloat.animateTo(1f, animationSpec = tween(200))
-                    animateFloat.animateTo(0f, animationSpec = tween(200))
-                }
+        ) {
+            coroutineScope.launch {
+                animateFloat.animateTo(1f, animationSpec = tween(200))
+                animateFloat.animateTo(0f, animationSpec = tween(200))
             }
-        )
+        }
     }
 }
 

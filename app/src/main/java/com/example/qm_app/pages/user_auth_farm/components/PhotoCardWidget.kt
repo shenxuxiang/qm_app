@@ -33,7 +33,7 @@ import com.example.qm_app.ui.theme.corner10
 import com.example.qm_app.ui.theme.white
 
 @Composable
-fun PhotoCard(
+fun PhotoCardWidget(
     title: String,
     photo: Bitmap?,
     subtitle: String,
