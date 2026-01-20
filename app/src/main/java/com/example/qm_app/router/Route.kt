@@ -11,10 +11,11 @@ import androidx.navigation.navDeepLink
 import com.example.qm_app.components.SwipeBack
 import com.example.qm_app.pages.camera.CameraScreen
 import com.example.qm_app.pages.login.LoginScreen
-import com.example.qm_app.pages.main.HomeScreen
+import com.example.qm_app.pages.main.MainScreen
 import com.example.qm_app.pages.signup.SignUpScreen
 import com.example.qm_app.pages.user.UserScreen
 import com.example.qm_app.pages.user_auth_farm.UserAuthFarmScreen
+import com.example.qm_app.pages.user_auth_farm_view.UserAuthFarmViewScreen
 import com.example.qm_app.pages.user_auth_select.UserAuthSelectScreen
 import kotlin.reflect.KClass
 
@@ -42,7 +43,7 @@ sealed class Route(
     /**
      * 主页
      * */
-    object HomeScreen : Route(route = "home", content = { HomeScreen() })
+    object MainScreen : Route(route = "home", content = { MainScreen() })
 
     /**
      * 登录页
@@ -87,6 +88,12 @@ sealed class Route(
      * */
     object UserAuthFarmScreen :
         Route(route = "user_auth_farm", content = { SwipeBack { UserAuthFarmScreen() } })
+
+    /**
+     * 用户认证-查看农户认证
+     * */
+    object UserAuthFarmViewScreen :
+        Route(route = "user_auth_farm_view", content = { SwipeBack { UserAuthFarmViewScreen() } })
 
     /**
      * 相机界面

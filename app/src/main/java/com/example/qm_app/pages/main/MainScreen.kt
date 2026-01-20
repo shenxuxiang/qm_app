@@ -33,7 +33,7 @@ val tabItems = listOf(
 )
 
 @Composable
-fun HomeScreen() {
+fun MainScreen() {
     val mainViewModel = QmApplication.mainViewModel
     val uiState by mainViewModel.uiState.collectAsState()
     val state = rememberPagerState(

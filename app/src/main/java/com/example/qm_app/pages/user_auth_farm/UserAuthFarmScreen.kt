@@ -15,12 +15,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -53,10 +53,18 @@ fun UserAuthFarmScreen() {
     val userAuthModel = hiltViewModel<UserAuthViewModel>()
     val systemUiController = rememberSystemUiController()
     val uiState by userAuthModel.uiState.collectAsState()
-    val scrollState = rememberScrollState()
-    val context = LocalContext.current
-
     val keyboardState = rememberKeyboardState()
+    val scrollState = rememberScrollState()
+
+    // 提交按钮是否可用
+    val submitButtonDisabled by derivedStateOf {
+        uiState.url1.isEmpty() ||
+                uiState.url2.isEmpty() ||
+                uiState.url3.isEmpty() ||
+                uiState.userName.isEmpty() ||
+                uiState.idNumber.isEmpty() ||
+                uiState.validDate.isEmpty()
+    }
     // 恢复StatusBar 中 Icons 的颜色
     LaunchedEffect(systemUiController) {
         systemUiController.setStatusBarColor(
@@ -72,9 +80,20 @@ fun UserAuthFarmScreen() {
             println(type)
             if (bitmap != null && type != null) {
                 when (type) {
-                    "1" -> userAuthModel.updateUIState { it -> it.copy(bitmap1 = bitmap) }
-                    "2" -> userAuthModel.updateUIState { it -> it.copy(bitmap2 = bitmap) }
-                    "3" -> userAuthModel.updateUIState { it -> it.copy(bitmap3 = bitmap) }
+                    "1" -> {
+                        userAuthModel.updateUIState { it -> it.copy(bitmap1 = bitmap) }
+                        userAuthModel.uploadIDCardBackFace(bitmap)
+                    }
+
+                    "2" -> {
+                        userAuthModel.updateUIState { it -> it.copy(bitmap2 = bitmap) }
+                        userAuthModel.uploadIDCardFrontFace(bitmap)
+                    }
+
+                    "3" -> {
+                        userAuthModel.updateUIState { it -> it.copy(bitmap3 = bitmap) }
+                        userAuthModel.uploadPhotoOfThird(bitmap)
+                    }
                 }
                 it["arguments"] = null
                 it["requestType"] = null
@@ -96,7 +115,18 @@ fun UserAuthFarmScreen() {
                 ) {
                     ButtonWidget(
                         text = "提交",
-                        onTap = {},
+                        onTap = {
+                            val params = mapOf(
+                                "portraitUrl" to uiState.url2,
+                                "handHeldUrl" to uiState.url3,
+                                "nationalEmblemUrl" to uiState.url1,
+                                "realName" to uiState.userName,
+                                "idCardNum" to uiState.idNumber,
+                                "validDate" to uiState.validDate,
+                            )
+                            userAuthModel.submitFarmAuth(params)
+                        },
+                        disabled = submitButtonDisabled,
                         type = ButtonWidgetType.Primary,
                         modifier = Modifier
                             .padding(horizontal = 46.dp)
@@ -207,9 +237,9 @@ fun UserAuthFarmScreen() {
                 InputWidget(
                     bordered = false,
                     label = "有效期限",
-                    value = uiState.dateTime,
+                    value = uiState.validDate,
                     keyboardType = KeyboardType.Number,
-                    onChange = { input -> userAuthModel.updateUIState { it.copy(dateTime = input) } }
+                    onChange = { input -> userAuthModel.updateUIState { it.copy(validDate = input) } }
                 )
             }
             Text(

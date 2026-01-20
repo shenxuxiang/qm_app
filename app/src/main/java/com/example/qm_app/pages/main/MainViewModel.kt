@@ -32,16 +32,16 @@ class MainViewModel @Inject constructor() : ViewModel() {
         if (tab == MainTabBar.Mine.route && TokenManager.token == null) {
             Toast.postShowWarningToast("用户未登录")
             Router.navigate(Route.LoginScreen.route) {
-                popUpTo(Route.HomeScreen.route) { inclusive = true }
+                popUpTo(Route.MainScreen.route) { inclusive = true }
             }
 
             return
         }
 
         _uiState.update { it.copy(bottomMenusTabKey = tab) }
-        if (Router.controller.currentBackStackEntry?.destination?.route != Route.HomeScreen.route) {
-            Router.navigate(Route.HomeScreen.route) {
-                popUpTo(Route.HomeScreen.route) {}
+        if (Router.controller.currentBackStackEntry?.destination?.route != Route.MainScreen.route) {
+            Router.navigate(Route.MainScreen.route) {
+                popUpTo(Route.MainScreen.route) {}
                 launchSingleTop = true
             }
         }

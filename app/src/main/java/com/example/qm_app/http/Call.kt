@@ -38,7 +38,7 @@ suspend fun <T> Call<T>.await(): T = suspendCoroutine { continuation ->
                             TokenManager.token = null
                             HttpToolkit.cancelAllPendingRequest()
                             Router.navigate(route = Route.LoginScreen.route) {
-                                popUpTo(Route.HomeScreen.route) { inclusive = true }
+                                popUpTo(Route.MainScreen.route) { inclusive = true }
                             }
                             continuation.resumeWithException(RuntimeException("请求已取消"))
                         }

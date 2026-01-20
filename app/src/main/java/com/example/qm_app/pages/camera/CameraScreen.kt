@@ -8,7 +8,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ExperimentalZeroShutterLag
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG
 import androidx.camera.core.ImageCapture.FLASH_MODE_OFF
 import androidx.camera.core.ImageCapture.FLASH_MODE_ON
 import androidx.camera.core.Preview
@@ -108,6 +110,7 @@ fun CameraScreen(requestType: String) { // 请求类型，在拍摄成功后，�
     }
 }
 
+@androidx.annotation.OptIn(ExperimentalZeroShutterLag::class)
 @SuppressLint("ConfigurationScreenWidthHeight")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,8 +127,8 @@ fun CameraLayouts(requestType: String) {
     var imageCapture by remember { mutableStateOf<ImageCapture?>(null) }
     val previewView = remember {
         PreviewView(context).apply {
-            scaleType = PreviewView.ScaleType.FILL_CENTER
-            implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+            scaleType = PreviewView.ScaleType.FILL_CENTER // 预览画面缩放模式
+            implementationMode = PreviewView.ImplementationMode.PERFORMANCE // 渲染预览流模式
         }
     }
     var currentZoom = remember { 1f }
@@ -145,8 +148,9 @@ fun CameraLayouts(requestType: String) {
                 }
 
                 imageCapture = ImageCapture.Builder()
-                    .setTargetRotation(view.display.rotation)
-                    .setFlashMode(FLASH_MODE_OFF)
+                    .setCaptureMode(CAPTURE_MODE_ZERO_SHUTTER_LAG) // 启用零快门延迟
+                    .setTargetRotation(view.display.rotation) // 设置拍摄角度
+                    .setFlashMode(FLASH_MODE_OFF) // 关闭闪光灯
                     .build()
 
                 val useCaseGroup = UseCaseGroup.Builder()

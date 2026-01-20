@@ -120,7 +120,7 @@ fun AccountLogin(viewModel: LoginViewModel) {
                         Toast.showSuccessToast("登录成功")
                         UserManager.updateUserInfo(resp.data)
                         TokenManager.token = resp.data["token"] as String
-                        Router.navigate(Route.HomeScreen.route) {
+                        Router.navigate(Route.MainScreen.route) {
                             popUpTo(Route.LoginScreen.route) { inclusive = true }
                         }
                     }

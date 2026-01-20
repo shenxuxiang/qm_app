@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
                 )
 
                 Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
-                    RouterHost(startDestination = Route.HomeScreen.route)
+                    RouterHost(startDestination = Route.MainScreen.route)
                 }
             }
         }

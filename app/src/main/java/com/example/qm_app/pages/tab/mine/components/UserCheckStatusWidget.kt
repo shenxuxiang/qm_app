@@ -82,9 +82,11 @@ fun UserCheckStatusWidget(viewModel: TabMineViewModel) {
             type = ButtonWidgetType.Primary,
             modifier = Modifier.size(80.dp, 28.dp),
             onTap = {
-                Router.navigate(Route.UserAuthSelectScreen.route)
-                if (uiState.userCheckStatus?.checkStatus == 0) {
-                    //Router.navigate(Route.UserAuthSelectScreen.route)
+                val status = uiState.userCheckStatus?.checkStatus
+                if (status == 0) {
+                    Router.navigate(Route.UserAuthSelectScreen.route)
+                } else {
+                    Router.navigate(Route.UserAuthFarmViewScreen.route)
                 }
             },
         )
