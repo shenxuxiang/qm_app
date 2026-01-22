@@ -69,7 +69,7 @@ fun TabHomeScreen() {
                         index = uiState.bannerIndex,
                         height = 153.dp,
                         options = uiState.bannerList,
-                        onChanged = { tabHomeViewModel.updateBannerIndex(it) },
+                        onChange = { tabHomeViewModel.updateBannerIndex(it) },
                     )
                 }
                 item {

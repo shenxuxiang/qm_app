@@ -16,12 +16,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerScope
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,45 +34,43 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.qm_app.ui.theme.primaryColor
 import com.example.qm_app.ui.theme.white
-
-
-@Composable
-fun rememberSwiperState(
-    count: Int,
-    initialIndex: Int,
-    onChanged: (index: Int) -> Unit,
-): PagerState {
-    val state = rememberPagerState(initialPage = initialIndex, pageCount = { count })
-
-    LaunchedEffect(state) {
-        snapshotFlow { state.currentPage }.collect {
-            onChanged(it)
-        }
-    }
-
-    return state
-}
+import com.example.qm_app.utils.getNetworkAssetURL
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun Swiper(
     height: Dp,
     index: Int = 0,
     options: List<String>,
-    onChanged: (index: Int) -> Unit,
+    onChange: (index: Int) -> Unit,
     content: (@Composable (PagerScope.(Int, option: String) -> Unit))? = null,
 ) {
     val context = LocalContext.current
-    val currentIndex = rememberUpdatedState(index)
+    val interval = remember { mutableStateOf(0) }
     val state = rememberPagerState(initialPage = index, pageCount = { options.size })
 
-    LaunchedEffect(state) {
+    LaunchedEffect(Unit) {
         snapshotFlow { state.currentPage }.collect {
-            if (currentIndex.value != it) onChanged(it)
+            onChange(it)
+            launch {
+                delay(300)
+                interval.value++
+            }
         }
     }
 
     LaunchedEffect(index) {
         if (index != state.currentPage) state.scrollToPage(index)
+    }
+
+    LaunchedEffect(interval.value) {
+        while (true) {
+            delay(5000)
+            val idx = if (state.currentPage >= state.pageCount - 1) 0 else state.currentPage + 1
+
+            state.animateScrollToPage(idx, animationSpec = tween(300))
+        }
     }
 
     Box(
@@ -87,10 +85,9 @@ fun Swiper(
             beyondViewportPageCount = options.size,
         ) { it ->
             if (content == null) {
-                println(options[it])
                 AsyncImage(
                     model = ImageRequest.Builder(context)
-                        .data("http://60.169.69.3:30062${options[it]}")
+                        .data(getNetworkAssetURL(options[it]))
                         .allowHardware(false) // 禁用硬件位图
                         .crossfade(true)
                         .build(),
@@ -111,7 +108,7 @@ fun Swiper(
                 .offset(x = 0.dp, y = (-12).dp)
         ) {
             repeat(options.size) {
-                IndicatorItem(active = it == currentIndex.value)
+                IndicatorItem(active = it == state.currentPage)
             }
         }
     }
@@ -121,7 +118,7 @@ fun Swiper(
 private fun IndicatorItem(active: Boolean) {
     val indicatorWidth = animateDpAsState(
         targetValue = if (active) 12.dp else 6.dp,
-        animationSpec = tween(durationMillis = 300),
+        animationSpec = tween(durationMillis = 500),
     )
     val backgroundColor = animateColorAsState(
         targetValue = if (active) primaryColor else white,
