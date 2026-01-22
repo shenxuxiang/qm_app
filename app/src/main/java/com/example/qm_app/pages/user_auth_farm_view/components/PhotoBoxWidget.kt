@@ -11,12 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import com.example.qm_app.components.ImageWidget
 import com.example.qm_app.ui.theme.black3
 import com.example.qm_app.ui.theme.corner10
 import com.example.qm_app.ui.theme.white
@@ -24,7 +22,6 @@ import com.example.qm_app.utils.getNetworkAssetURL
 
 @Composable
 fun PhotoBoxWidget(title: String, url: String, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
     Box(
         modifier = modifier.then(
             Modifier
@@ -42,14 +39,9 @@ fun PhotoBoxWidget(title: String, url: String, modifier: Modifier = Modifier) {
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 20.dp, start = 12.dp)
         )
-        AsyncImage(
-            model = ImageRequest.Builder(context)
-                .data(getNetworkAssetURL(url))
-                .allowHardware(false)
-                .crossfade(true)
-                .build(),
-            contentDescription = null,
+        ImageWidget(
             contentScale = ContentScale.Crop,
+            url = getNetworkAssetURL(url),
             modifier = Modifier
                 .padding(
                     top = 48.dp,
