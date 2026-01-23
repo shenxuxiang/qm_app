@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,8 +24,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.qm_app.R
 import com.example.qm_app.common.QmIcons
-import com.example.qm_app.common.UserManager
 import com.example.qm_app.components.QmIcon
+import com.example.qm_app.compositionLocal.LocalUserInfo
 import com.example.qm_app.ui.theme.black3
 import com.example.qm_app.ui.theme.black4
 import com.example.qm_app.ui.theme.white
@@ -35,9 +33,10 @@ import com.example.qm_app.utils.getNetworkAssetURL
 
 @Composable
 fun HeaderWidget() {
-    val userInfo by UserManager.userInfo.collectAsState()
+    val userInfo = LocalUserInfo.current
+
     val avatarImage = if (userInfo?.avatar?.isNotEmpty() ?: false)
-        getNetworkAssetURL(userInfo!!.avatar) else
+        getNetworkAssetURL(userInfo.avatar) else
         R.drawable.default_avatar
 
     Row(

@@ -7,11 +7,17 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
 import com.example.qm_app.common.QmApplication
 import com.example.qm_app.common.ScreenShotUtils
+import com.example.qm_app.common.UserManager
+import com.example.qm_app.compositionLocal.LocalUserInfo
 import com.example.qm_app.router.Route
 import com.example.qm_app.router.RouterHost
 import com.example.qm_app.ui.theme.QmTheme
@@ -29,20 +35,26 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             QmTheme {
+                val userInfo by UserManager.userInfo.collectAsState()
                 // 获取 SystemUiController 实例，它是管理状态栏和导航栏外观的核心工具。
                 val systemUiController = rememberSystemUiController()
-                // darkIcons: true-深色图标(浅色背景), false-浅色图标(深色背景)
-                systemUiController.setStatusBarColor(
-                    color = Color.Transparent,
-                    darkIcons = true
-                )
-                systemUiController.setNavigationBarColor(
-                    color = Color.Black,
-                    darkIcons = false
-                )
 
-                Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
-                    RouterHost(startDestination = Route.MainScreen.route)
+                LaunchedEffect(Unit) {
+                    // darkIcons: true-深色图标(浅色背景), false-浅色图标(深色背景)
+                    systemUiController.setStatusBarColor(
+                        color = Color.Transparent,
+                        darkIcons = true
+                    )
+                    systemUiController.setNavigationBarColor(
+                        color = Color.Black,
+                        darkIcons = false
+                    )
+                }
+
+                CompositionLocalProvider(LocalUserInfo provides userInfo) {
+                    Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
+                        RouterHost(startDestination = Route.MainScreen.route)
+                    }
                 }
             }
         }
