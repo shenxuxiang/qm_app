@@ -12,6 +12,7 @@ import com.example.qm_app.components.SwipeBack
 import com.example.qm_app.pages.camera.CameraScreen
 import com.example.qm_app.pages.login.LoginScreen
 import com.example.qm_app.pages.main.MainScreen
+import com.example.qm_app.pages.map_location.MapLocationScreen
 import com.example.qm_app.pages.signup.SignUpScreen
 import com.example.qm_app.pages.user.UserScreen
 import com.example.qm_app.pages.user_auth_farm.UserAuthFarmScreen
@@ -106,5 +107,14 @@ sealed class Route(
         }),
         content = { backStateEntry ->
             CameraScreen(requestType = backStateEntry.arguments?.getString("requestType") ?: "1")
+        })
+
+    /**
+     * 高德地图定位界面
+     * */
+    object MapLocationScreen : Route(
+        route = "map_location",
+        content = {
+            MapLocationScreen()
         })
 }

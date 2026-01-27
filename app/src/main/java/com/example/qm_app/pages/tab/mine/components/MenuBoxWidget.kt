@@ -2,6 +2,7 @@ package com.example.qm_app.pages.tab.mine.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -61,7 +62,8 @@ fun MenuBoxWidget(title: String, menus: List<MineMenuItem>, modifier: Modifier =
                         .wrapContentWidth(
                             align = Alignment.CenterHorizontally,
                             unbounded = true,
-                        ),
+                        )
+                        .clickable(onClick = { menuItem.link.invoke() }),
                 ) {
                     Image(
                         contentDescription = null,

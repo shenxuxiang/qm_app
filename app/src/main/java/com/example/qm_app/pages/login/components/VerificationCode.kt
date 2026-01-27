@@ -36,11 +36,9 @@ fun VerificationCode(onStart: (suspend () -> Boolean)) {
     }
 
     LaunchedEffect(endTime) {
-        launch {
-            while (countdown > 0) {
-                delay(timeMillis = 1000L)
-                countdown--
-            }
+        while (countdown > 0) {
+            delay(timeMillis = 1000L)
+            countdown--
         }
     }
 
