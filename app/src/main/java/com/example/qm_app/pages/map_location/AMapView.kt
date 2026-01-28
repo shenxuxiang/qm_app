@@ -49,7 +49,7 @@ class AMapView(private val context: Context) : MapView(context) {
     fun setMyLocationStyle() {
         val myLocationStyle = MyLocationStyle()
         myLocationStyle.showMyLocation(true)
-        myLocationStyle.myLocationType(MyLocationStyle.LOCATION_TYPE_SHOW)
+        myLocationStyle.myLocationType(MyLocationStyle.LOCATION_TYPE_LOCATE)
         aMap.myLocationStyle = myLocationStyle
         aMap.isMyLocationEnabled = true
     }

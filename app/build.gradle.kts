@@ -32,7 +32,7 @@ android {
             // 属于环境维度
             dimension = "environment"
             // 包名后缀
-            applicationIdSuffix = ".dev"
+            // applicationIdSuffix = ".dev"
             // 版本名后缀
             versionNameSuffix = "-alpha"
 
@@ -60,6 +60,12 @@ android {
 
     // 配置签名文件
     signingConfigs {
+        getByName("debug") {
+            storeFile = file("./debug-keystore.jks")
+            keyAlias = "debug-keystore"
+            storePassword = "sqal@145680"
+            keyPassword = "sqal@145680"
+        }
         create("release") {
             storeFile = file("./release-keystore.jks")
             keyAlias = "release-keystore"
