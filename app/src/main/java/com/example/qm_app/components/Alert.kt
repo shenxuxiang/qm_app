@@ -30,7 +30,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.qm_app.common.Overlay
@@ -38,7 +37,6 @@ import com.example.qm_app.ui.theme.black
 import com.example.qm_app.ui.theme.black4
 import com.example.qm_app.ui.theme.corner10
 import com.example.qm_app.ui.theme.white
-import kotlinx.coroutines.launch
 
 sealed class AlertContent {
     data class TextContent(val message: String) : AlertContent()
@@ -114,7 +112,6 @@ class AlertUiEvent private constructor(
     fun create(dispose: () -> Unit) {
         val initialScale = 0.2f
         val animationMillis = 200
-        val initialOffset = with(LocalDensity.current) { (-150).dp.toPx() }
 
         val showAlert = remember { mutableStateOf(false) }
         val hasConfirm = remember { mutableStateOf(false) }
@@ -128,27 +125,19 @@ class AlertUiEvent private constructor(
             }
         )
         val scaleAnimate = remember { Animatable(initialScale) }
-        val offsetAnimate = remember { Animatable(initialOffset) }
 
         LaunchedEffect(Unit) {
             showAlert.value = true
-            launch {
-                scaleAnimate.animateTo(
-                    targetValue = 1f,
-                    animationSpec = tween(durationMillis = animationMillis)
-                )
-            }
-            launch {
-                offsetAnimate.animateTo(
-                    targetValue = 0f,
-                    animationSpec = tween(durationMillis = animationMillis)
-                )
-            }
+            scaleAnimate.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = animationMillis)
+            )
         }
 
         // 系统返回键拦截
         val onBackPressedDispatcher =
             LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+
         DisposableEffect(Unit) {
             var onBackPressedCallback: OnBackPressedCallback? = null
             onBackPressedDispatcher?.let {
@@ -160,9 +149,7 @@ class AlertUiEvent private constructor(
                 onBackPressedDispatcher.addCallback(onBackPressedCallback)
             }
 
-            onDispose {
-                onBackPressedCallback?.remove()
-            }
+            onDispose { onBackPressedCallback?.remove() }
         }
 
         Box(
@@ -177,7 +164,6 @@ class AlertUiEvent private constructor(
                     .padding(contentPadding)
                     .fillMaxWidth()
                     .graphicsLayer(
-                        translationY = offsetAnimate.value,
                         scaleX = scaleAnimate.value,
                         scaleY = scaleAnimate.value,
                         alpha = alpha
