@@ -2,15 +2,17 @@ package com.example.qm_app.pages.map_location
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.location.Location
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import androidx.annotation.DrawableRes
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import com.amap.api.maps.AMap
-import com.amap.api.maps.AMapOptions
 import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.MapView
 import com.amap.api.maps.UiSettings
+import com.amap.api.maps.model.BitmapDescriptor
 import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Marker
@@ -18,50 +20,79 @@ import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.MyLocationStyle
 
 @SuppressLint("ViewConstructor")
-class AMapView(private val context: Context) : MapView(context) {
-    val aMap: AMap get() = map
-    val uiSettings: UiSettings get() = aMap.uiSettings// 实例化 UiSettings 类对象
+class AMapView(private val context: Context, lifecycle: Lifecycle, onMounted: (AMapView) -> Unit) :
+    MapView(context) {
+    companion object {
+        private val DEFAULT_MARKER_ICON = BitmapDescriptorFactory.defaultMarker(
+            BitmapDescriptorFactory.HUE_RED
+        )
+    }
 
+    /**
+     * 获取到地图实例
+     * */
+    val aMap: AMap get() = map
+
+    /**
+     * 实例化 UiSettings 类对象
+     * */
+    val uiSettings: UiSettings get() = aMap.uiSettings
+
+    /**
+     * 地图交互
+     * */
     fun moveCamera(latLng: LatLng, zoom: Float) {
         val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom)
         aMap.animateCamera(cameraUpdate)
     }
 
-    fun setControls() {
-        uiSettings.isZoomControlsEnabled = false
-        uiSettings.isCompassEnabled = false
-        uiSettings.isScaleControlsEnabled = false
-        uiSettings.logoPosition = AMapOptions.LOGO_POSITION_BOTTOM_RIGHT
+    /**
+     * 自定义 MarkerIcon
+     * */
+    fun customMarkerIcon(@DrawableRes resourceId: Int, width: Int, height: Int): BitmapDescriptor {
+        val bitmap = BitmapFactory.decodeResource(context.resources, resourceId)
+        val scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true)
+        bitmap.recycle()
+        return BitmapDescriptorFactory.fromBitmap(scaledBitmap)
     }
 
-    fun addMarker(point: LatLng): Marker {
+    /**
+     * 添加 Marker
+     * */
+    fun addMarker(
+        point: LatLng,
+        title: String? = null,
+        snippet: String? = null,
+        draggable: Boolean = true,
+        icon: BitmapDescriptor = DEFAULT_MARKER_ICON,
+    ): Marker {
         val markerOptions = MarkerOptions().apply {
-            position(point)
-            title("柏庄香府")
-            snippet("柏庄香府: ${point.latitude}, ${point.longitude}")
-            draggable(true)
-            icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)) // 可选：设置颜色
+            this.icon(icon)
+            this.position(point)
+            this.draggable(draggable)
+
+            anchor(0.5f, 0.9f)
+            if (title != null) this.title(title)
+            if (snippet != null) this.snippet(snippet)
         }
 
         return aMap.addMarker(markerOptions)
     }
 
-    fun setMyLocationStyle() {
-        val myLocationStyle = MyLocationStyle()
-        myLocationStyle.showMyLocation(true)
-        myLocationStyle.myLocationType(MyLocationStyle.LOCATION_TYPE_LOCATE)
-        aMap.myLocationStyle = myLocationStyle
-        aMap.isMyLocationEnabled = true
-    }
-
-    fun addOnMyLocationChangeListener(block: (Location) -> Unit): () -> Unit {
-        aMap.addOnMyLocationChangeListener(block)
-        return fun() {
-            aMap.removeOnMyLocationChangeListener(block)
+    /**
+     * 设置地图定位蓝点
+     * */
+    fun setMyLocationStyle(type: Int = MyLocationStyle.LOCATION_TYPE_LOCATE) {
+        val myLocationStyle = MyLocationStyle().apply {
+            showMyLocation(true)
+            myLocationType(type)
         }
+
+        aMap.isMyLocationEnabled = true
+        aMap.myLocationStyle = myLocationStyle
     }
 
-    fun bindToLifecycle(lifecycle: Lifecycle) {
+    private fun bindToLifecycle(lifecycle: Lifecycle, onMounted: (AMapView) -> Unit) {
         lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onCreate(owner: LifecycleOwner) {
                 super.onCreate(owner)
@@ -71,6 +102,7 @@ class AMapView(private val context: Context) : MapView(context) {
             override fun onResume(owner: LifecycleOwner) {
                 super.onResume(owner)
                 onResume()
+                onMounted(this@AMapView)
             }
 
             override fun onPause(owner: LifecycleOwner) {
@@ -83,5 +115,9 @@ class AMapView(private val context: Context) : MapView(context) {
                 onDestroy()
             }
         })
+    }
+
+    init {
+        bindToLifecycle(lifecycle, onMounted)
     }
 }

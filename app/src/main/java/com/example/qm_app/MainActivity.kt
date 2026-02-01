@@ -14,6 +14,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
+import com.amap.api.location.AMapLocationClient
+import com.amap.api.maps.MapsInitializer
 import com.example.qm_app.common.QmApplication
 import com.example.qm_app.common.ScreenShotUtils
 import com.example.qm_app.common.UserManager
@@ -33,6 +35,12 @@ class MainActivity : ComponentActivity() {
         ScreenShotUtils.init(this)
         QmApplication.activity = this
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        // 高德搜索 SDK 合规性检查
+        AMapLocationClient.updatePrivacyShow(this, true, true)
+        AMapLocationClient.updatePrivacyAgree(this, true)
+        // 高德地图 SDK 合规性检查
+        MapsInitializer.updatePrivacyShow(this, true, true)
+        MapsInitializer.updatePrivacyAgree(this, true)
         setContent {
             QmTheme {
                 val userInfo by UserManager.userInfo.collectAsState()
