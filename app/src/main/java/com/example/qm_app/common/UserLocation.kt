@@ -13,6 +13,8 @@ object UserLocation {
             } else {
                 black(null)
             }
+            aMapLocationClient.stopLocation()
+            aMapLocationClient.onDestroy()
         }
 
         val option = AMapLocationClientOption().apply {

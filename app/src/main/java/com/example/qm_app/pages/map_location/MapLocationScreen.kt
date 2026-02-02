@@ -3,12 +3,35 @@ package com.example.qm_app.pages.map_location
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.amap.api.maps.model.LatLng
+import com.example.qm_app.R
+import com.example.qm_app.common.QmIcons
+import com.example.qm_app.common.UserLocation
+import com.example.qm_app.components.toast.Toast
+import com.example.qm_app.pages.map_location.components.AMapView
+import com.example.qm_app.pages.map_location.components.AMapViewWidget
+import com.example.qm_app.pages.map_location.components.CircleButton
+import com.example.qm_app.pages.map_location.components.SearchBox
+import com.example.qm_app.router.Router
 
 private const val ACCESS_FINE_LOCATION = android.Manifest.permission.ACCESS_FINE_LOCATION
 private const val ACCESS_COARSE_LOCATION = android.Manifest.permission.ACCESS_COARSE_LOCATION
@@ -43,5 +66,76 @@ fun MapLocationScreen() {
         }
     }
 
-    if (hasLocationPermission.value) AMapViewWidget()
+    val statusBarTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val initialZoom = remember { 18f }
+    val density = LocalDensity.current
+
+    val viewModel = hiltViewModel<MapLocationViewModel>()
+    val uiState by viewModel.uiState.collectAsState()
+
+    fun onMapReady(view: AMapView) {
+        viewModel.updateUIState { it.copy(aMapView = view) }
+        UserLocation.getCurrentLocation { location ->
+            location?.let {
+                val point = LatLng(it.latitude, it.longitude)
+                view.moveCamera(point, initialZoom)
+                val marker = view.addMarker(
+                    point = point,
+                    icon = view.customMarkerIcon(
+                        R.drawable.map_location_icon,
+                        with(density) { 70.dp.toPx().toInt() },
+                        with(density) { 70.dp.toPx().toInt() },
+                    ),
+                )
+                viewModel.updateUIState { uiState -> uiState.copy(marker = marker) }
+            } ?: run {
+                Toast.postShowWarningToast("定位失败")
+            }
+        }
+    }
+
+    fun handleResetUserLocation() {
+        UserLocation.getCurrentLocation { location ->
+            location?.let {
+                val point = LatLng(it.latitude, it.longitude)
+                uiState.aMapView?.aMap?.clear()
+                uiState.aMapView?.moveCamera(point, initialZoom)
+                uiState.aMapView?.addMarker(
+                    point = point,
+                    icon = uiState.aMapView!!.customMarkerIcon(
+                        R.drawable.map_location_icon,
+                        with(density) { 70.dp.toPx().toInt() },
+                        with(density) { 70.dp.toPx().toInt() },
+                    ),
+                )?.let { marker ->
+                    viewModel.updateUIState { uiState -> uiState.copy(marker = marker) }
+                }
+            } ?: run {
+                Toast.postShowWarningToast("定位失败")
+            }
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (hasLocationPermission.value) AMapViewWidget(onMapReady = ::onMapReady)
+        SearchBox(placeholder = "搜索位置信息", value = "", onTap = {})
+
+        Box(modifier = Modifier.align(Alignment.TopEnd))
+
+        CircleButton(
+            icon = QmIcons.Stroke.Backup,
+            onTap = { Router.popBackStack() },
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(start = 12.dp, top = statusBarTop + 60.dp),
+        )
+        CircleButton(
+            icon = QmIcons.Stroke.Position,
+            onTap = ::handleResetUserLocation,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(end = 12.dp, top = statusBarTop + 60.dp),
+        )
+    }
 }
+

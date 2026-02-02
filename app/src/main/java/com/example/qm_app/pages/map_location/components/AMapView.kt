@@ -1,4 +1,4 @@
-package com.example.qm_app.pages.map_location
+package com.example.qm_app.pages.map_location.components
 
 import android.annotation.SuppressLint
 import android.content.Context

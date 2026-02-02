@@ -12,42 +12,43 @@ plugins {
 }
 
 fun buildVersionCode(): Int? {
-    lateinit var buildType: String
-    lateinit var flavorName: String
     // taskName 的格式为：assemble + flavorName + buildType
     // 它的值一般为：assembleProdRelease、assembleDevRelease 等。
     var taskName = gradle.startParameter.taskNames.firstOrNull() ?: ""
+
     val regex = """^(?<flavorName>[A-Z][a-z]+)(?<buildType>[A-Z][a-z]+)$""".toRegex()
 
     taskName = taskName.replace("^assemble".toRegex(), "")
 
-    regex.matchEntire(taskName)?.let { matched ->
-        flavorName = matched.groups["flavorName"]!!.value.lowercase()
-        buildType = matched.groups["buildType"]!!.value.lowercase()
-    }
+    return regex.matchEntire(taskName)?.let { matched ->
+        val flavorName = matched.groups["flavorName"]!!.value.lowercase()
+        val buildType = matched.groups["buildType"]!!.value.lowercase()
 
-    // 如果是开发者模式，则不需要执行以下步骤。
-    if (buildType == "debug") return null
+        // 如果是开发者模式，则不需要执行以下步骤。
+        if (buildType == "debug") return null
 
-    // 注意：projectDir 对应项目的 `app/` 路径
-    val propertiesFileName =
-        "${project.projectDir.path}/properties/${flavorName}_${buildType}.properties"
-    val propertiesFile = File(propertiesFileName)
-    val props = Properties()
+        // 注意：projectDir 对应项目的 `app/` 路径
+        val propertiesFileName =
+            "${project.projectDir.path}/properties/${flavorName}_${buildType}.properties"
+        val propertiesFile = File(propertiesFileName)
+        val props = Properties()
 
-    if (propertiesFile.exists()) {
-        props.load(FileInputStream(propertiesFile))
-    } else {
-        props["versionCode"] = "0"
+        if (propertiesFile.exists()) {
+            props.load(FileInputStream(propertiesFile))
+        } else {
+            props["versionCode"] = "0"
+            props.store(FileOutputStream(propertiesFile), null)
+        }
+
+        // 每次构建时，都在原来的基础之上加 1
+        val nextVersionCode = props["versionCode"].toString().toInt() + 1
+        props["versionCode"] = nextVersionCode.toString()
         props.store(FileOutputStream(propertiesFile), null)
+
+        return nextVersionCode
+    } ?: run {
+        return@run null
     }
-
-    // 每次构建时，都在原来的基础之上加 1
-    val nextVersionCode = props["versionCode"].toString().toInt() + 1
-    props["versionCode"] = nextVersionCode.toString()
-    props.store(FileOutputStream(propertiesFile), null)
-
-    return nextVersionCode
 }
 
 
@@ -215,6 +216,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.material3)
     implementation(files("src\\main\\jniLibs\\AMap3DMap_10.1.600_AMapSearch_9.7.4_AMapLocation_6.5.1_20251020.jar"))
+    implementation(libs.androidx.foundation.layout)
     kapt("com.google.dagger:hilt-android-compiler:2.50")  // 注解处理器
     implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
     implementation("androidx.navigation:navigation-compose:2.9.6")

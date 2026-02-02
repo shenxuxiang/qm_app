@@ -41,6 +41,8 @@ sealed class QmIcons(val icon: String) {
         object TabBarMenuRelease : QmIcons("\ue616")
         object TabBarMenuAgricultural : QmIcons("\ue615")
         object TabBarMenuMine : QmIcons("\ue618")
+
+        object Backup : QmIcons("\ue632")
     }
 
     object Filled {
