@@ -1,3 +1,7 @@
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,6 +10,46 @@ plugins {
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
 }
+
+fun buildVersionCode(): Int? {
+    lateinit var buildType: String
+    lateinit var flavorName: String
+    // taskName 的格式为：assemble + flavorName + buildType
+    // 它的值一般为：assembleProdRelease、assembleDevRelease 等。
+    var taskName = gradle.startParameter.taskNames.firstOrNull() ?: ""
+    val regex = """^(?<flavorName>[A-Z][a-z]+)(?<buildType>[A-Z][a-z]+)$""".toRegex()
+
+    taskName = taskName.replace("^assemble".toRegex(), "")
+
+    regex.matchEntire(taskName)?.let { matched ->
+        flavorName = matched.groups["flavorName"]!!.value.lowercase()
+        buildType = matched.groups["buildType"]!!.value.lowercase()
+    }
+
+    // 如果是开发者模式，则不需要执行以下步骤。
+    if (buildType == "debug") return null
+
+    // 注意：projectDir 对应项目的 `app/` 路径
+    val propertiesFileName =
+        "${project.projectDir.path}/properties/${flavorName}_${buildType}.properties"
+    val propertiesFile = File(propertiesFileName)
+    val props = Properties()
+
+    if (propertiesFile.exists()) {
+        props.load(FileInputStream(propertiesFile))
+    } else {
+        props["versionCode"] = "0"
+        props.store(FileOutputStream(propertiesFile), null)
+    }
+
+    // 每次构建时，都在原来的基础之上加 1
+    val nextVersionCode = props["versionCode"].toString().toInt() + 1
+    props["versionCode"] = nextVersionCode.toString()
+    props.store(FileOutputStream(propertiesFile), null)
+
+    return nextVersionCode
+}
+
 
 android {
     namespace = "com.example.qm_app"
@@ -17,12 +61,19 @@ android {
         applicationId = "com.example.qm_app"
         minSdk = 28
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         manifestPlaceholders["appName"] = "阡陌农服"
+
+        // 获取构建版本号
+        val code = buildVersionCode()
+        if (code == null) {
+            versionCode = 1
+            versionName = "1.0"
+        } else {
+            versionCode = code
+            versionName = "1.0.${code}"
+        }
     }
 
     flavorDimensions.add("environment")
@@ -103,6 +154,30 @@ android {
         compose = true
         buildConfig = true
         viewBinding = true
+    }
+
+    // 分包
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+            isUniversalApk = false
+        }
+    }
+
+    applicationVariants.all {
+        outputs.all {
+            if (this is com.android.build.gradle.internal.api.BaseVariantOutputImpl) {
+                val versionName = defaultConfig.versionName
+                val versionCode = defaultConfig.versionCode
+                // ✅ 获取 APK 的 ABI 架构类型，filter?.identifier 就是我们想要的 apk 的格式：比如 arm64-v8a
+                val filter = this.filters.find { it.filterType == "ABI" }
+                val abiType = if (filter?.identifier == null) "" else ".${filter.identifier}"
+                this.outputFileName =
+                    "app${abiType}-${versionCode}-v${versionName}.apk"
+            }
+        }
     }
 }
 
