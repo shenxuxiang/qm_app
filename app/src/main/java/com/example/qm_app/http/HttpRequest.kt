@@ -1,10 +1,11 @@
 package com.example.qm_app.http
 
+import com.example.qm_app.common.QmAppConfig
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object HttpRequest {
-    private const val BASE_URL = "http://60.169.69.3:30062"
+    private const val BASE_URL = QmAppConfig.baseURL
     private const val TIMEOUT = 60L
 
     val interceptor = HttpInterceptor()
