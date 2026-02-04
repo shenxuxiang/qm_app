@@ -12,9 +12,6 @@ plugins {
 }
 
 fun buildVersionCode(): Int? {
-
-    gradle.startParameter.projectDir
-
     // 这是启动参数中的一个属性，它返回一个 List<String>，包含了在命令行中指定的任务名称。
     val taskNames = gradle.startParameter.taskNames
     // taskName 的格式为：assemble + flavorName + buildType
