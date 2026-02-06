@@ -3,6 +3,7 @@ package com.example.qm_app.pages.tab.mine
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Stable
 import com.example.qm_app.R
+import com.example.qm_app.common.TokenManager
 import com.example.qm_app.entity.UserCheckStatus
 import com.example.qm_app.router.Route
 import com.example.qm_app.router.Router
@@ -27,7 +28,7 @@ data class UiState(
         MineMenuItem(
             label = "地址管理",
             icon = R.drawable.mine_settings_2,
-            link = { Router.navigate(Route.MapLocationScreen.route) },
+            link = { Router.navigate(Route.UserAddressScreen.route) },
         ),
         MineMenuItem(
             label = "更新记录",
@@ -37,6 +38,12 @@ data class UiState(
         MineMenuItem(label = "检查更新", icon = R.drawable.mine_settings_4, link = {}),
         MineMenuItem(label = "清除缓存", icon = R.drawable.mine_settings_5, link = {}),
         MineMenuItem(label = "关于我们", icon = R.drawable.mine_settings_6, link = {}),
-        MineMenuItem(label = "退出登录", icon = R.drawable.mine_settings_7, link = {}),
+        MineMenuItem(label = "退出登录", icon = R.drawable.mine_settings_7, link = {
+            TokenManager.token = null
+            Router.navigate(Route.LoginScreen.route) {
+                popUpTo(Route.MainScreen.route) { inclusive = true }
+                launchSingleTop = true
+            }
+        }),
     ),
 )

@@ -12,6 +12,7 @@ import com.amap.api.maps.AMap
 import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.MapView
 import com.amap.api.maps.UiSettings
+import com.amap.api.maps.model.AMapGestureListener
 import com.amap.api.maps.model.BitmapDescriptor
 import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
@@ -113,6 +114,29 @@ class AMapView(private val context: Context, lifecycle: Lifecycle, onMounted: (A
             override fun onDestroy(owner: LifecycleOwner) {
                 super.onDestroy(owner)
                 onDestroy()
+            }
+        })
+    }
+
+    fun setAMapDragGesture(onDrag: () -> Unit = {}, onDragEnd: () -> Unit = {}) {
+        var isDragging = false
+        aMap.setAMapGestureListener(object : AMapGestureListener {
+            override fun onDoubleTap(p0: Float, p1: Float) {}
+            override fun onSingleTap(p0: Float, p1: Float) {}
+            override fun onFling(p0: Float, p1: Float) {}
+            override fun onScroll(p0: Float, p1: Float) {
+                isDragging = true
+                onDrag()
+            }
+
+            override fun onLongPress(p0: Float, p1: Float) {}
+            override fun onDown(p0: Float, p1: Float) {}
+            override fun onMapStable() {}
+            override fun onUp(p0: Float, p1: Float) {
+                if (isDragging) {
+                    isDragging = false
+                    onDragEnd()
+                }
             }
         })
     }

@@ -32,19 +32,28 @@ class MapLocationViewModel @Inject constructor() : ViewModel() {
     }
 
     // 更新 POI 列表
-    fun updatePoiList(point: LatLng? = null) {
-        val position = point ?: uiState.value.aMapView!!.aMap.cameraPosition.target
+    fun updatePoiList(point: LatLng? = null, pageNum: Int = 1, pageSize: Int = 10) {
+        updateUIState { it.copy(isLoading = true) }
 
+        val position = point ?: uiState.value.aMapView!!.aMap.cameraPosition.target
         val query = PoiSearchV2.Query("", "")
-        query.pageNum = 1
-        query.pageSize = 10
+        query.pageNum = pageNum
+        query.pageSize = pageSize
 
         val poiSearch = PoiSearchV2(QmApplication.context, query)
         poiSearch.setOnPoiSearchListener(object : PoiSearchV2.OnPoiSearchListener {
             override fun onPoiSearched(result: PoiResultV2?, p1: Int) {
                 result?.let {
                     // 我们取 poi 中的 latLonPoint、snippet、title、cityName、adName 这些属性
-                    updateUIState { uiState -> uiState.copy(poiList = it.pois) }
+                    updateUIState { uiState ->
+                        uiState.copy(
+                            poiList = it.pois,
+                            isLoading = false,
+                            pageNum = pageNum,
+                            pageSize = pageSize,
+                            selectedPoi = it.pois.firstOrNull(),
+                        )
+                    }
                 }
             }
 

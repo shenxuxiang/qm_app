@@ -1,14 +1,15 @@
 package com.example.qm_app.pages.map_location
 
+import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -20,7 +21,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -29,7 +29,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.amap.api.maps.model.AMapGestureListener
 import com.amap.api.maps.model.LatLng
 import com.example.qm_app.R
 import com.example.qm_app.common.QmIcons
@@ -38,12 +37,12 @@ import com.example.qm_app.components.toast.Toast
 import com.example.qm_app.pages.map_location.components.AMapView
 import com.example.qm_app.pages.map_location.components.AMapViewWidget
 import com.example.qm_app.pages.map_location.components.CircleButton
+import com.example.qm_app.pages.map_location.components.DisplayPoiListWidget
 import com.example.qm_app.pages.map_location.components.SearchBox
 import com.example.qm_app.router.Router
-import com.example.qm_app.ui.theme.black3
 
-private const val ACCESS_FINE_LOCATION = android.Manifest.permission.ACCESS_FINE_LOCATION
-private const val ACCESS_COARSE_LOCATION = android.Manifest.permission.ACCESS_COARSE_LOCATION
+private const val ACCESS_FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
+private const val ACCESS_COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION
 
 @Composable
 fun MapLocationScreen() {
@@ -83,7 +82,6 @@ fun MapLocationScreen() {
     val viewModel = hiltViewModel<MapLocationViewModel>()
     val uiState by viewModel.uiState.collectAsState()
 
-
     fun onMapReady(view: AMapView) {
         viewModel.updateUIState { it.copy(aMapView = view) }
 
@@ -93,18 +91,9 @@ fun MapLocationScreen() {
             view.width / 2,
             with(density) { (statusBarTop + 40.dp + 130.dp).toPx().toInt() },
         )
-
-        view.aMap.setAMapGestureListener(object : AMapGestureListener {
-            override fun onDoubleTap(p0: Float, p1: Float) {}
-            override fun onSingleTap(p0: Float, p1: Float) {}
-            override fun onFling(p0: Float, p1: Float) {}
-            override fun onScroll(p0: Float, p1: Float) {}
-            override fun onLongPress(p0: Float, p1: Float) {}
-            override fun onDown(p0: Float, p1: Float) {}
-            override fun onMapStable() {}
-            override fun onUp(p0: Float, p1: Float) {
-                viewModel.updatePoiList()
-            }
+        view.uiSettings.isGestureScaleByMapCenter = true
+        view.setAMapDragGesture(onDragEnd = {
+            viewModel.updatePoiList()
         })
 
         UserLocation.getCurrentLocation { location ->
@@ -124,18 +113,22 @@ fun MapLocationScreen() {
                 val point = LatLng(it.latitude, it.longitude)
                 uiState.aMapView?.aMap?.clear()
                 uiState.aMapView?.moveCamera(point, initialZoom)
+                viewModel.updatePoiList(point)
             } ?: run {
                 Toast.postShowWarningToast("定位失败")
             }
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier
+        .navigationBarsPadding()
+        .fillMaxSize()) {
         if (hasLocationPermission.value) AMapViewWidget(onMapReady = ::onMapReady)
         SearchBox(placeholder = "搜索位置信息", value = "", onTap = {})
 
         Box(modifier = Modifier.align(Alignment.TopEnd))
 
+        // 返回上一页
         CircleButton(
             icon = QmIcons.Stroke.Backup,
             onTap = { Router.popBackStack() },
@@ -143,6 +136,8 @@ fun MapLocationScreen() {
                 .align(Alignment.TopStart)
                 .padding(start = 12.dp, top = statusBarTop + 60.dp),
         )
+
+        // 重新定位
         CircleButton(
             icon = QmIcons.Stroke.Position,
             onTap = ::handleResetUserLocation,
@@ -150,6 +145,8 @@ fun MapLocationScreen() {
                 .align(Alignment.TopEnd)
                 .padding(end = 12.dp, top = statusBarTop + 60.dp),
         )
+
+        // 地图中心点得 Marker
         Image(
             painter = painterResource(R.drawable.map_location_icon),
             contentScale = ContentScale.Crop,
@@ -160,15 +157,14 @@ fun MapLocationScreen() {
                 .size(90.dp)
         )
 
-        Box(
+        // 展示周边 POI 检索结果
+        DisplayPoiListWidget(
             modifier = Modifier
                 .padding(top = statusBarTop + 40.dp + 260.dp)
-                .fillMaxSize()
-                .alpha(0.5f)
-                .background(black3)
-        ) {
-
-        }
+                .fillMaxSize(),
+            uiState = uiState,
+            viewModel = viewModel,
+        )
     }
 }
 

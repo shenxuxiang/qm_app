@@ -12,5 +12,9 @@ data class UiState(
     val initialZoom: Float = 18f,
     val aMapView: AMapView? = null,
     val userLocation: AMapLocation? = null,
-    val poiList: List<PoiItemV2> = emptyList() // POI 集合
+    val poiList: List<PoiItemV2> = emptyList(), // POI 集合
+    val selectedPoi: PoiItemV2? = null,
+    val pageNum: Int = 1,
+    val pageSize: Int = 10,
+    val isLoading: Boolean = false, // 是否正在检索周边 POI
 )

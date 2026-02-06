@@ -15,6 +15,7 @@ import com.example.qm_app.pages.main.MainScreen
 import com.example.qm_app.pages.map_location.MapLocationScreen
 import com.example.qm_app.pages.signup.SignUpScreen
 import com.example.qm_app.pages.user.UserScreen
+import com.example.qm_app.pages.user_address.UserAddressScreen
 import com.example.qm_app.pages.user_auth_farm.UserAuthFarmScreen
 import com.example.qm_app.pages.user_auth_farm_view.UserAuthFarmViewScreen
 import com.example.qm_app.pages.user_auth_select.UserAuthSelectScreen
@@ -116,5 +117,14 @@ sealed class Route(
         route = "map_location",
         content = {
             MapLocationScreen()
+        })
+
+    /**
+     * 地址管理
+     * */
+    object UserAddressScreen : Route(
+        route = "user_address",
+        content = {
+            UserAddressScreen()
         })
 }
