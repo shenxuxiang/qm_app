@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -76,6 +77,7 @@ fun UserAddressScreen() {
                         modifier = Modifier
                             .padding(bottom = 12.dp)
                             .fillMaxWidth()
+                            .height(300.dp)
                             .background(color = white, shape = corner10)
                             .padding(12.dp)
                     ) {
@@ -173,7 +175,9 @@ fun UserAddressScreen() {
                         }
                     }
                 }
-                
+                item {
+                    LoadMoreWidget(viewModel, uiState)
+                }
             } else
             Column(
                 verticalArrangement = Arrangement.Center,
@@ -190,5 +194,21 @@ fun UserAddressScreen() {
                     modifier = Modifier.padding(top = 8.dp)
                 )
             }
+    }
+}
+
+@Composable
+fun LoadMoreWidget(viewModel: UserAddressViewModel, uiState: UiState) {
+    LaunchedEffect(Unit) {
+        println("sssssss=============================")
+        viewModel.queryUserAddressList(uiState.pageNum + 1, uiState.pageSize)
+    }
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(60.dp),
+    ) {
+        Text(text = "加载中", fontSize = 14.sp, lineHeight = 14.sp, color = gray)
     }
 }

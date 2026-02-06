@@ -55,6 +55,19 @@ class UserAddressViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    /**
+     * 加载更多
+     * */
+    fun loadMore() {
+        val pageNum = uiState.value.pageNum
+        val pageSize = uiState.value.pageSize
+        val loadStatus = uiState.value.loadStatus
+        if (loadStatus == LoadStatus.None) queryUserAddressList(pageNum, pageSize)
+    }
+
+    /**
+     * 设置为默认地址
+     * */
     fun setDefaultAddress(address: UserAddressData) {
         viewModelScope.launch {
             try {
