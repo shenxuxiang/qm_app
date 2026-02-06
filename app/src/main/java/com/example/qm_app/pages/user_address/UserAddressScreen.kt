@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -25,9 +26,13 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.qm_app.common.QmIcons
 import com.example.qm_app.components.ButtonWidget
 import com.example.qm_app.components.ButtonWidgetType
+import com.example.qm_app.components.LoadMoreState
+import com.example.qm_app.components.LoadMoreWidget
 import com.example.qm_app.components.PageScaffold
 import com.example.qm_app.components.QmCheckbox
 import com.example.qm_app.components.QmIcon
+import com.example.qm_app.components.rememberLoadMoreState
+import com.example.qm_app.entity.UserAddressData
 import com.example.qm_app.modifier.boxShadow
 import com.example.qm_app.ui.theme.black
 import com.example.qm_app.ui.theme.black3
@@ -40,8 +45,24 @@ import com.example.qm_app.ui.theme.white
 @Composable
 fun UserAddressScreen() {
     val lazyListState = rememberLazyListState()
+    val loadMoreState = rememberLoadMoreState()
     val viewModel = hiltViewModel<UserAddressViewModel>()
     val uiState by viewModel.uiState.collectAsState()
+
+    fun onLoadMore() {
+        val pageNum = uiState.pageNum
+        val pageSize = uiState.pageSize
+        viewModel.queryUserAddressList(pageNum + 1, pageSize)
+    }
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { uiState.addressList }.collect {
+            if (loadMoreState.state == LoadMoreState.LoadState.Loading) {
+                loadMoreState.finishLoad(uiState.addressList.size >= uiState.total)
+            }
+        }
+    }
+
     PageScaffold(
         title = "地址管理",
         bottomBar = {
@@ -73,110 +94,17 @@ fun UserAddressScreen() {
                     .padding(horizontal = 12.dp)
             ) {
                 itemsIndexed(uiState.addressList) { index, address ->
-                    Column(
-                        modifier = Modifier
-                            .padding(bottom = 12.dp)
-                            .fillMaxWidth()
-                            .height(300.dp)
-                            .background(color = white, shape = corner10)
-                            .padding(12.dp)
-                    ) {
-                        Row(modifier = Modifier.padding(bottom = 12.dp)) {
-                            Text(
-                                text = "姓名：",
-                                color = black3,
-                                fontSize = 16.sp,
-                                lineHeight = 16.sp,
-                            )
-                            Text(
-                                text = address.username,
-                                color = black3,
-                                fontSize = 16.sp,
-                                lineHeight = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                            )
-                        }
-                        Row(modifier = Modifier.padding(bottom = 12.dp)) {
-                            Text(
-                                text = "联系电话：",
-                                color = black3,
-                                fontSize = 16.sp,
-                                lineHeight = 16.sp,
-                            )
-                            Text(
-                                text = address.phone,
-                                color = black3,
-                                fontSize = 16.sp,
-                                lineHeight = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                            )
-                        }
-                        Row(modifier = Modifier.padding(bottom = 16.dp)) {
-                            Text(
-                                text = "地址：",
-                                fontSize = 14.sp,
-                                color = black3,
-                                lineHeight = 22.sp,
-                            )
-                            Text(
-                                text = "${address.regionName}${address.address}",
-                                color = black3,
-                                fontSize = 14.sp,
-                                lineHeight = 22.sp,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                        Row(
-                            horizontalArrangement = Arrangement.Start,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Row(
-                                modifier = Modifier.weight(1f),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                QmCheckbox(
-                                    value = uiState.defaultAddress == address,
-                                    size = 22.dp,
-                                    radius = 11.dp,
-                                    onChange = {
-                                        if (uiState.defaultAddress == address) return@QmCheckbox
-                                        viewModel.setDefaultAddress(address)
-                                    },
-                                )
-                                Text(
-                                    text = "设置为默认",
-                                    color = black4,
-                                    fontSize = 14.sp,
-                                    lineHeight = 14.sp,
-                                    modifier = Modifier.padding(start = 6.dp),
-                                )
+                    DisplayAddressItem(
+                        address = address,
+                        defaultAddress = uiState.defaultAddress,
+                        onTap = {
+                            if (address != uiState.defaultAddress) {
+                                viewModel.setDefaultAddress(address)
                             }
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                QmIcon(icon = QmIcons.Stroke.Edit, size = 22.dp, tint = black6)
-                                Text(
-                                    text = "编辑",
-                                    color = black4,
-                                    fontSize = 14.sp,
-                                    lineHeight = 14.sp,
-                                )
-                            }
-                            Row(
-                                modifier = Modifier.padding(start = 24.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                QmIcon(icon = QmIcons.Stroke.Delete, size = 22.dp, tint = black6)
-                                Text(
-                                    text = "删除",
-                                    color = black4,
-                                    fontSize = 14.sp,
-                                    lineHeight = 14.sp,
-                                )
-                            }
-                        }
-                    }
+                        })
                 }
                 item {
-                    LoadMoreWidget(viewModel, uiState)
+                    LoadMoreWidget(loadState = loadMoreState, onLoad = ::onLoadMore)
                 }
             } else
             Column(
@@ -198,17 +126,107 @@ fun UserAddressScreen() {
 }
 
 @Composable
-fun LoadMoreWidget(viewModel: UserAddressViewModel, uiState: UiState) {
-    LaunchedEffect(Unit) {
-        println("sssssss=============================")
-        viewModel.queryUserAddressList(uiState.pageNum + 1, uiState.pageSize)
-    }
-    Box(
-        contentAlignment = Alignment.Center,
+fun DisplayAddressItem(
+    address: UserAddressData,
+    defaultAddress: UserAddressData?,
+    onTap: () -> Unit
+) {
+    Column(
         modifier = Modifier
+            .padding(bottom = 12.dp)
             .fillMaxWidth()
-            .height(60.dp),
+            .height(300.dp)
+            .background(color = white, shape = corner10)
+            .padding(12.dp)
     ) {
-        Text(text = "加载中", fontSize = 14.sp, lineHeight = 14.sp, color = gray)
+        Row(modifier = Modifier.padding(bottom = 12.dp)) {
+            Text(
+                text = "姓名：",
+                color = black3,
+                fontSize = 16.sp,
+                lineHeight = 16.sp,
+            )
+            Text(
+                text = address.username,
+                color = black3,
+                fontSize = 16.sp,
+                lineHeight = 16.sp,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+        Row(modifier = Modifier.padding(bottom = 12.dp)) {
+            Text(
+                text = "联系电话：",
+                color = black3,
+                fontSize = 16.sp,
+                lineHeight = 16.sp,
+            )
+            Text(
+                text = address.phone,
+                color = black3,
+                fontSize = 16.sp,
+                lineHeight = 16.sp,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+        Row(modifier = Modifier.padding(bottom = 16.dp)) {
+            Text(
+                text = "地址：",
+                fontSize = 14.sp,
+                color = black3,
+                lineHeight = 22.sp,
+            )
+            Text(
+                text = "${address.regionName}${address.address}",
+                color = black3,
+                fontSize = 14.sp,
+                lineHeight = 22.sp,
+                modifier = Modifier.weight(1f)
+            )
+        }
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                QmCheckbox(
+                    value = defaultAddress == address,
+                    size = 22.dp,
+                    radius = 11.dp,
+                    onChange = { onTap() },
+                )
+                Text(
+                    text = "设置为默认",
+                    color = black4,
+                    fontSize = 14.sp,
+                    lineHeight = 14.sp,
+                    modifier = Modifier.padding(start = 6.dp),
+                )
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                QmIcon(icon = QmIcons.Stroke.Edit, size = 22.dp, tint = black6)
+                Text(
+                    text = "编辑",
+                    color = black4,
+                    fontSize = 14.sp,
+                    lineHeight = 14.sp,
+                )
+            }
+            Row(
+                modifier = Modifier.padding(start = 24.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                QmIcon(icon = QmIcons.Stroke.Delete, size = 22.dp, tint = black6)
+                Text(
+                    text = "删除",
+                    color = black4,
+                    fontSize = 14.sp,
+                    lineHeight = 14.sp,
+                )
+            }
+        }
     }
 }

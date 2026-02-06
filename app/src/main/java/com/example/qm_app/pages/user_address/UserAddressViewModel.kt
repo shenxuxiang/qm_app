@@ -46,23 +46,13 @@ class UserAddressViewModel @Inject constructor() : ViewModel() {
                         pageSize = pageSize,
                         addressList = newList,
                         total = resp.data.total,
-                        defaultAddress = newList.find { address -> address.defaultFlag }
+                        defaultAddress = newList.find { address -> address.defaultFlag },
                     )
                 }
             } catch (exception: Exception) {
                 LogUntil.d(exception)
             }
         }
-    }
-
-    /**
-     * 加载更多
-     * */
-    fun loadMore() {
-        val pageNum = uiState.value.pageNum
-        val pageSize = uiState.value.pageSize
-        val loadStatus = uiState.value.loadStatus
-        if (loadStatus == LoadStatus.None) queryUserAddressList(pageNum, pageSize)
     }
 
     /**
