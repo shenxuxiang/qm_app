@@ -168,10 +168,8 @@ fun Swiper(
     LaunchedEffect(isDragged, options.size) {
         while (!isDragged && options.size > 1) {
             delay(interval)
-            val currentPage = pagerState.currentPage
-            val index = if (currentPage > thresholdRange.last) 1 else currentPage + 1
             pagerState.animateScrollToPage(
-                page = index,
+                page = pagerState.currentPage + 1,
                 animationSpec = tween(animationDuration)
             )
             updateCurrentPager(pagerState, thresholdRange)

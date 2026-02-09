@@ -9,6 +9,7 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.example.qm_app.components.SwipeBack
+import com.example.qm_app.pages.add_user_address.AddUserAddressScreen
 import com.example.qm_app.pages.camera.CameraScreen
 import com.example.qm_app.pages.login.LoginScreen
 import com.example.qm_app.pages.main.MainScreen
@@ -117,7 +118,8 @@ sealed class Route(
         route = "map_location",
         content = {
             MapLocationScreen()
-        })
+        }
+    )
 
     /**
      * 地址管理
@@ -125,6 +127,15 @@ sealed class Route(
     object UserAddressScreen : Route(
         route = "user_address",
         content = {
-            UserAddressScreen()
+            SwipeBack { UserAddressScreen() }
+        })
+
+    /**
+     * 新增地址
+     * */
+    object AddUserAddressScreen : Route(
+        route = "add_user_address",
+        content = {
+            SwipeBack { AddUserAddressScreen() }
         })
 }

@@ -32,7 +32,6 @@ import com.example.qm_app.entity.SelectedOptionItem
 import com.example.qm_app.ui.theme.black3
 import com.example.qm_app.ui.theme.black4
 import com.example.qm_app.ui.theme.gray
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,10 +75,8 @@ fun RegionWidget(
                         interactionSource = null,
                         onClick = {
                             focusManager.clearFocus()
-                            coroutineScope.launch {
-                                showDialog.value = true
-                                if (uiState.regionData.isEmpty()) mainViewModel.queryRegionData()
-                            }
+                            showDialog.value = true
+                            if (uiState.regionData.isEmpty()) mainViewModel.queryRegionData()
                         },
                     ),
                 contentAlignment = Alignment.CenterStart

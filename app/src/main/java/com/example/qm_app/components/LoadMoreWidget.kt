@@ -89,27 +89,26 @@ fun LoadMoreWidget(loadState: LoadMoreState, onLoad: () -> Unit, modifier: Modif
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
-                    .padding(end = 20.dp)
-                    .size(80.dp, 0.5.dp)
+                    .padding(end = 12.dp)
+                    .size(40.dp, 0.5.dp)
                     .background(black.copy(0.2f))
             )
             Text(
                 color = gray,
                 fontSize = 12.sp,
                 lineHeight = 12.sp,
-                modifier = Modifier.padding(end = 2.dp),
                 text = if (loadState.state == LoadMoreState.LoadState.NotMore) "没有更多数据了" else "加载中",
             )
             if (loadState.state != LoadMoreState.LoadState.NotMore)
-                Row {
+                Row(modifier = Modifier.padding(start = 2.dp)) {
                     Dot(transition, 0)
                     Dot(transition, 1)
                     Dot(transition, 2)
                 }
             Box(
                 modifier = Modifier
-                    .padding(start = 20.dp)
-                    .size(80.dp, 0.5.dp)
+                    .padding(start = 12.dp)
+                    .size(40.dp, 0.5.dp)
                     .background(black.copy(0.2f))
             )
         }

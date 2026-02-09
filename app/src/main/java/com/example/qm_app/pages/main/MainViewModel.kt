@@ -7,8 +7,6 @@ import com.example.qm_app.components.toast.Toast
 import com.example.qm_app.router.Route
 import com.example.qm_app.router.Router
 import com.example.qm_app.utils.loadAssetsFile
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,14 +48,12 @@ class MainViewModel @Inject constructor() : ViewModel() {
     /**
      * 获取省市区
      * */
-    suspend fun queryRegionData() {
+    fun queryRegionData() {
         viewModelScope.launch(Dispatchers.Default) {
             try {
-                val json = loadAssetsFile("region_data.json")
-                val gson = Gson()
-                val type = object : TypeToken<List<RegionSourceTree>>() {}.type
+                val regionData = loadAssetsFile("region_data.json")
                 _uiState.update {
-                    it.copy(regionData = gson.fromJson(json, type))
+                    it.copy(regionData = regionData)
                 }
             } catch (e: Exception) {
                 Toast.showWarningToast("数据加载失败")

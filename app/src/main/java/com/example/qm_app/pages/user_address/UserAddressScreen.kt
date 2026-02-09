@@ -2,7 +2,6 @@ package com.example.qm_app.pages.user_address
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,17 +23,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.qm_app.common.QmIcons
-import com.example.qm_app.components.ButtonWidget
-import com.example.qm_app.components.ButtonWidgetType
 import com.example.qm_app.components.LoadMoreState
 import com.example.qm_app.components.LoadMoreWidget
+import com.example.qm_app.components.PageFootButton
 import com.example.qm_app.components.PageScaffold
 import com.example.qm_app.components.QmCheckbox
 import com.example.qm_app.components.QmIcon
 import com.example.qm_app.components.rememberLoadMoreState
 import com.example.qm_app.entity.UserAddressData
-import com.example.qm_app.modifier.boxShadow
-import com.example.qm_app.ui.theme.black
+import com.example.qm_app.router.Route
+import com.example.qm_app.router.Router
 import com.example.qm_app.ui.theme.black3
 import com.example.qm_app.ui.theme.black4
 import com.example.qm_app.ui.theme.black6
@@ -66,23 +64,8 @@ fun UserAddressScreen() {
     PageScaffold(
         title = "地址管理",
         bottomBar = {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-                    .boxShadow(x = 0.dp, y = 2.dp, blur = 4.dp, color = black.copy(alpha = 0.2f))
-                    .background(white)
-            ) {
-                ButtonWidget(
-                    text = "添加新地址",
-                    type = ButtonWidgetType.Primary,
-                    modifier = Modifier
-                        .padding(horizontal = 46.dp)
-                        .fillMaxWidth()
-                        .height(36.dp),
-                    onTap = {},
-                )
+            PageFootButton(text = "添加新地址") {
+                Router.navigate(Route.AddUserAddressScreen.route)
             }
         }
     ) { paddingValues ->
@@ -129,7 +112,7 @@ fun UserAddressScreen() {
 fun DisplayAddressItem(
     address: UserAddressData,
     defaultAddress: UserAddressData?,
-    onTap: () -> Unit
+    onTap: () -> Unit,
 ) {
     Column(
         modifier = Modifier

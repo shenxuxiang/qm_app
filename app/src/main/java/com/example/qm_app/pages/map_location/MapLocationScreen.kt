@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -77,7 +76,6 @@ fun MapLocationScreen() {
     val statusBarTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val initialZoom = remember { 18f }
     val density = LocalDensity.current
-    val view = LocalView.current
 
     val viewModel = hiltViewModel<MapLocationViewModel>()
     val uiState by viewModel.uiState.collectAsState()
@@ -120,9 +118,11 @@ fun MapLocationScreen() {
         }
     }
 
-    Box(modifier = Modifier
-        .navigationBarsPadding()
-        .fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .navigationBarsPadding()
+            .fillMaxSize()
+    ) {
         if (hasLocationPermission.value) AMapViewWidget(onMapReady = ::onMapReady)
         SearchBox(placeholder = "搜索位置信息", value = "", onTap = {})
 
@@ -159,11 +159,11 @@ fun MapLocationScreen() {
 
         // 展示周边 POI 检索结果
         DisplayPoiListWidget(
+            uiState = uiState,
+            viewModel = viewModel,
             modifier = Modifier
                 .padding(top = statusBarTop + 40.dp + 260.dp)
                 .fillMaxSize(),
-            uiState = uiState,
-            viewModel = viewModel,
         )
     }
 }

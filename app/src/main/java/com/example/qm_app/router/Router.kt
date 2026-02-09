@@ -5,8 +5,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavOptionsBuilder
 import androidx.savedstate.savedState
 import com.example.qm_app.common.ScreenShotUtils
+import com.google.gson.Gson
 
 object Router {
+    data class BackResult<T>(val data: T, val source: String)
+
     private lateinit var _navController: NavHostController
 
     /**
@@ -53,6 +56,17 @@ object Router {
      * 返回上一页
      * */
     fun popBackStack(): Boolean {
+        return _navController.popBackStack()
+    }
+
+    fun <T> popBackStack(result: BackResult<T>): Boolean {
+        val gson = Gson()
+        val json = gson.toJson(result)
+        _navController.previousBackStackEntry?.savedStateHandle?.set(
+            "arguments",
+            json,
+        )
+
         return _navController.popBackStack()
     }
 

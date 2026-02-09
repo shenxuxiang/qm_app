@@ -37,10 +37,13 @@ import com.example.qm_app.ui.theme.black4
 import com.example.qm_app.ui.theme.corner8
 import com.example.qm_app.ui.theme.gray
 import com.example.qm_app.ui.theme.white
-import com.google.gson.Gson
 
 @Composable
-fun DisplayPoiListWidget(modifier: Modifier, viewModel: MapLocationViewModel, uiState: UiState) {
+fun DisplayPoiListWidget(
+    uiState: UiState,
+    modifier: Modifier,
+    viewModel: MapLocationViewModel,
+) {
     val lazyListState = rememberLazyListState()
 
     LaunchedEffect(uiState.poiList) {
@@ -134,13 +137,13 @@ fun DisplayPoiListWidget(modifier: Modifier, viewModel: MapLocationViewModel, ui
                 .clip(corner8)
                 .background(white.copy(alpha = 0.8f))
                 .clickable(onClick = {
-                    val gson = Gson()
-                    val json = gson.toJson(uiState.selectedPoi)
-                    Router.controller.previousBackStackEntry?.savedStateHandle?.set(
-                        "arguments",
-                        json,
+                    Router.popBackStack(
+                        Router.BackResult(
+                            data = uiState.selectedPoi,
+                            source = Router.controller.currentBackStackEntry?.destination?.route
+                                ?: ""
+                        )
                     )
-                    Router.popBackStack()
                 }),
         ) {
             Text(
