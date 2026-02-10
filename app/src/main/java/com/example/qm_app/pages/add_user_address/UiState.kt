@@ -10,4 +10,5 @@ data class UiState(
     val location: String = "",
     val regions: List<SelectedOptionItem> = listOf(),
     val isDefault: Boolean = false,
+    val isLoading: Boolean = true,
 )

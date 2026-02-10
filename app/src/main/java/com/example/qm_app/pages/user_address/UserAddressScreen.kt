@@ -1,6 +1,7 @@
 package com.example.qm_app.pages.user_address
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -65,7 +66,7 @@ fun UserAddressScreen() {
         title = "地址管理",
         bottomBar = {
             PageFootButton(text = "添加新地址") {
-                Router.navigate(Route.AddUserAddressScreen.route)
+                Router.navigate(Route.AddUserAddressScreen.route, mapOf("id" to null))
             }
         }
     ) { paddingValues ->
@@ -189,7 +190,19 @@ fun DisplayAddressItem(
                     modifier = Modifier.padding(start = 6.dp),
                 )
             }
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable(
+                    indication = null,
+                    interactionSource = null,
+                    onClick = {
+                        Router.navigate(
+                            Route.AddUserAddressScreen.route,
+                            parameters = mapOf("id" to address.addressId)
+                        )
+                    },
+                )
+            ) {
                 QmIcon(icon = QmIcons.Stroke.Edit, size = 22.dp, tint = black6)
                 Text(
                     text = "编辑",

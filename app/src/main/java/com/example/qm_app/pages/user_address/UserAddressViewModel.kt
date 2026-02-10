@@ -6,6 +6,7 @@ import com.example.qm_app.api.UserAddressServiceApi
 import com.example.qm_app.common.LogUntil
 import com.example.qm_app.components.loading.Loading
 import com.example.qm_app.entity.UserAddressData
+import com.example.qm_app.event_bus.UserAddressEventBus
 import com.example.qm_app.http.HttpRequest
 import com.example.qm_app.http.await
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -76,5 +77,31 @@ class UserAddressViewModel @Inject constructor() : ViewModel() {
         val pageNum = uiState.value.pageNum
         val pageSize = uiState.value.pageSize
         queryUserAddressList(pageNum, pageSize)
+
+        // 监听用户地址的变化（修改）
+        // 这里的协程不需要手动取消，当 ViewModel 销毁时自动取消该 viewModelScope 启动的协程
+        viewModelScope.launch {
+            UserAddressEventBus.event.collect {
+                if (it is UserAddressEventBus.UiEvent.Update) {
+                    val data = it.data
+                    val index =
+                        _uiState.value.addressList.indexOfFirst { item -> item.addressId == data.addressId }
+
+
+                    if (index >= 0) {
+                        val newAddressList = arrayListOf<UserAddressData>()
+                        newAddressList.addAll(_uiState.value.addressList)
+                        newAddressList[index] = data
+
+                        updateUIState { ui ->
+                            ui.copy(
+                                addressList = newAddressList,
+                                defaultAddress = if (data.defaultFlag) data else ui.defaultAddress
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }

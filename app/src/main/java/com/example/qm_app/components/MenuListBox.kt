@@ -3,6 +3,7 @@ package com.example.qm_app.components
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.FlowRow
@@ -25,10 +26,14 @@ import com.example.qm_app.ui.theme.black4
 import com.example.qm_app.ui.theme.corner10
 import com.example.qm_app.ui.theme.white
 
-data class MenuItemOption(val label: String, @param:DrawableRes val res: Int)
+data class MenuItemOption(
+    val label: String,
+    @param:DrawableRes val res: Int,
+    val link: (() -> Unit)? = null,
+)
 
 @Composable
-private fun MenuItem(label: String, res: Int) {
+private fun MenuItem(label: String, res: Int, link: (() -> Unit)? = null) {
     ConstraintLayout(
         modifier = Modifier
             .size(32.dp, 55.dp)
@@ -36,6 +41,7 @@ private fun MenuItem(label: String, res: Int) {
                 Alignment.CenterHorizontally,
                 unbounded = true
             )
+            .clickable(onClick = { link?.invoke() }, indication = null, interactionSource = null)
     ) {
         val (imageRef, textRef) = createRefs()
         val guideLine = createGuidelineFromStart(0.5f)
@@ -79,7 +85,7 @@ fun MenuListBox(options: List<MenuItemOption>) {
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             options.forEach { item ->
-                MenuItem(label = item.label, res = item.res)
+                MenuItem(label = item.label, res = item.res, link = item.link)
             }
         }
     }

@@ -178,10 +178,8 @@ fun UserAuthFarmScreen() {
                 photo = uiState.bitmap1,
                 onTap = {
                     Router.navigate(
-                        Router.replace(
-                            pattern = Route.CameraScreen.route,
-                            replacement = mapOf("requestType" to "1"),
-                        )
+                        Route.CameraScreen.route,
+                        parameters = mapOf("requestType" to "1")
                     )
                 }
             )
@@ -193,10 +191,8 @@ fun UserAuthFarmScreen() {
                 photo = uiState.bitmap2,
                 onTap = {
                     Router.navigate(
-                        Router.replace(
-                            pattern = Route.CameraScreen.route,
-                            replacement = mapOf("requestType" to "2"),
-                        )
+                        Route.CameraScreen.route,
+                        parameters = mapOf("requestType" to "2")
                     )
                 }
             )
@@ -208,10 +204,8 @@ fun UserAuthFarmScreen() {
                 photo = uiState.bitmap3,
                 onTap = {
                     Router.navigate(
-                        Router.replace(
-                            pattern = Route.CameraScreen.route,
-                            replacement = mapOf("requestType" to "3"),
-                        )
+                        Route.CameraScreen.route,
+                        parameters = mapOf("requestType" to "3")
                     )
                 }
             )

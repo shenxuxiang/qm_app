@@ -18,4 +18,7 @@ interface UserAddressServiceApi {
 
     @POST("v1.0/userAddress/update") // 更新地址
     fun updateUserAddress(@Body body: Any): Call<ResponseData<Any>>
+
+    @POST("/v1.0/userAddress/detail")
+    fun queryUserAddressDetail(@Body body: Map<String, String>): Call<ResponseData<UserAddressData>>
 }

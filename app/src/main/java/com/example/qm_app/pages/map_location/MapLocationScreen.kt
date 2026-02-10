@@ -33,7 +33,7 @@ import com.example.qm_app.R
 import com.example.qm_app.common.QmIcons
 import com.example.qm_app.common.UserLocation
 import com.example.qm_app.components.toast.Toast
-import com.example.qm_app.pages.map_location.components.AMapView
+import com.example.qm_app.common.AMapView
 import com.example.qm_app.pages.map_location.components.AMapViewWidget
 import com.example.qm_app.pages.map_location.components.CircleButton
 import com.example.qm_app.pages.map_location.components.DisplayPoiListWidget

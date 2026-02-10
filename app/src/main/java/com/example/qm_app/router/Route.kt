@@ -14,6 +14,7 @@ import com.example.qm_app.pages.camera.CameraScreen
 import com.example.qm_app.pages.login.LoginScreen
 import com.example.qm_app.pages.main.MainScreen
 import com.example.qm_app.pages.map_location.MapLocationScreen
+import com.example.qm_app.pages.measure_land.MeasureLandScreen
 import com.example.qm_app.pages.signup.SignUpScreen
 import com.example.qm_app.pages.user.UserScreen
 import com.example.qm_app.pages.user_address.UserAddressScreen
@@ -134,8 +135,25 @@ sealed class Route(
      * 新增地址
      * */
     object AddUserAddressScreen : Route(
-        route = "add_user_address",
-        content = {
-            SwipeBack { AddUserAddressScreen() }
+        route = "add_user_address/{id}",
+        arguments = listOf(
+            navArgument("id") {
+                nullable = true
+                defaultValue = null
+                type = NavType.StringType
+            }
+        ),
+        content = { backStackEntry ->
+            SwipeBack { AddUserAddressScreen(id = backStackEntry.arguments?.getString("id", "")) }
         })
+
+    /**
+     * 测量宝
+     * */
+    object MeasureLandScreen : Route(
+        route = "measure_land",
+        content = {
+            MeasureLandScreen()
+        }
+    )
 }

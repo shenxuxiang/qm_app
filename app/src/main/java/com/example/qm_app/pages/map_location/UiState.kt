@@ -4,7 +4,7 @@ import androidx.compose.runtime.Stable
 import com.amap.api.location.AMapLocation
 import com.amap.api.maps.model.Marker
 import com.amap.api.services.core.PoiItemV2
-import com.example.qm_app.pages.map_location.components.AMapView
+import com.example.qm_app.common.AMapView
 
 @Stable
 data class UiState(

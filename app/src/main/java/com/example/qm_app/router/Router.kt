@@ -32,17 +32,33 @@ object Router {
      * 导航到目标页面
      * 设置启动模式为 singleTop，避免用户多次点击跳转按钮，导致同一个页面在返回栈中多次加载
      * */
-    fun navigate(route: String) {
+    fun navigate(route: String, parameters: Map<String, String?>? = null) {
         _previousScreenShotBitmap = ScreenShotUtils.captureFullScreen()
-        _navController.navigate(route) {
+
+        var path = route
+        if (parameters != null) {
+            path = replace(path, parameters)
+        }
+
+        _navController.navigate(path) {
             launchSingleTop = true
             savedState()
         }
     }
 
-    fun navigate(route: String, builder: NavOptionsBuilder.() -> Unit) {
+    fun navigate(
+        route: String,
+        parameters: Map<String, String?>? = null,
+        builder: NavOptionsBuilder.() -> Unit,
+    ) {
         _previousScreenShotBitmap = ScreenShotUtils.captureFullScreen()
-        _navController.navigate(route, builder)
+
+        var path = route
+        if (parameters != null) {
+            path = replace(path, parameters)
+        }
+
+        _navController.navigate(path, builder)
     }
 
     /**
@@ -80,12 +96,21 @@ object Router {
     /**
      * 路由中的占位符替换
      * */
-    fun replace(pattern: String, replacement: Map<String, String>): String {
+    private fun replace(pattern: String, replacement: Map<String, String?>): String {
         var result = pattern
         for ((k, v) in replacement) {
             val reg = """\{${k}\}""".toRegex()
-            result = result.replace(reg, v)
+            result = result.replace(reg, v ?: "")
         }
+
+        // pattern 模板中的占位符必须和 replacement 中的 Pair 一一对应，否则抛出异常。
+        val reg = Regex("""\{(?<key>[a-zA-Z]+)\}""")
+        val matched = reg.find(result)
+        if (matched is MatchResult) {
+            val key = matched.groups["key"]!!.value
+            throw Error("The Route Pattern is '$pattern', But You Missed Passing The Parameter $key")
+        }
+
         return result
     }
 }

@@ -21,10 +21,14 @@ import com.example.qm_app.components.PullToRefreshColumn
 import com.example.qm_app.components.Swiper
 import com.example.qm_app.components.loading.Loading
 import com.example.qm_app.pages.tab.home.components.NewsItemBox
+import com.example.qm_app.router.Route
+import com.example.qm_app.router.Router
 import kotlinx.coroutines.launch
 
 val menuOptions = listOf(
-    MenuItemOption(label = "测量宝", res = R.drawable.home_1),
+    MenuItemOption(label = "测量宝", res = R.drawable.home_1) {
+        Router.navigate(Route.MeasureLandScreen.route)
+    },
     MenuItemOption(label = "农技作业", res = R.drawable.home_2),
     MenuItemOption(label = "病虫害识别", res = R.drawable.home_3),
     MenuItemOption(label = "我的农场", res = R.drawable.home_4),

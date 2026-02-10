@@ -8,5 +8,5 @@ data class UserAddressData(
     val addressId: String,
     val regionCode: String,
     val regionName: String,
-    val defaultFlag: Boolean,
+    var defaultFlag: Boolean,
 )

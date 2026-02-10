@@ -1,4 +1,4 @@
-package com.example.qm_app.pages.map_location.components
+package com.example.qm_app.common
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -18,7 +18,6 @@ import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MarkerOptions
-import com.amap.api.maps.model.MyLocationStyle
 
 @SuppressLint("ViewConstructor")
 class AMapView(private val context: Context, lifecycle: Lifecycle, onMounted: (AMapView) -> Unit) :
@@ -48,9 +47,9 @@ class AMapView(private val context: Context, lifecycle: Lifecycle, onMounted: (A
     }
 
     /**
-     * 自定义 MarkerIcon
+     * 自定义 Icon
      * */
-    fun customMarkerIcon(@DrawableRes resourceId: Int, width: Int, height: Int): BitmapDescriptor {
+    fun customIcon(@DrawableRes resourceId: Int, width: Int, height: Int): BitmapDescriptor {
         val bitmap = BitmapFactory.decodeResource(context.resources, resourceId)
         val scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true)
         bitmap.recycle()
@@ -78,19 +77,6 @@ class AMapView(private val context: Context, lifecycle: Lifecycle, onMounted: (A
         }
 
         return aMap.addMarker(markerOptions)
-    }
-
-    /**
-     * 设置地图定位蓝点
-     * */
-    fun setMyLocationStyle(type: Int = MyLocationStyle.LOCATION_TYPE_LOCATE) {
-        val myLocationStyle = MyLocationStyle().apply {
-            showMyLocation(true)
-            myLocationType(type)
-        }
-
-        aMap.isMyLocationEnabled = true
-        aMap.myLocationStyle = myLocationStyle
     }
 
     private fun bindToLifecycle(lifecycle: Lifecycle, onMounted: (AMapView) -> Unit) {

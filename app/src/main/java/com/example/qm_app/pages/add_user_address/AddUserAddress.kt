@@ -1,20 +1,26 @@
 package com.example.qm_app.pages.add_user_address
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,7 +36,7 @@ import com.example.qm_app.ui.theme.corner10
 import com.example.qm_app.ui.theme.white
 
 @Composable
-fun AddUserAddressScreen() {
+fun AddUserAddressScreen(id: String?) {
     val scrollState = rememberScrollState()
     val viewModel = hiltViewModel<ViewModel>()
     val uiState by viewModel.uiState.collectAsState()
@@ -42,11 +48,17 @@ fun AddUserAddressScreen() {
                 uiState.location.isEmpty()
     }
 
+    LaunchedEffect(Unit) {
+        if (id?.isNotEmpty() ?: false && uiState.isLoading) {
+            viewModel.queryUserAddressDetail(id)
+        }
+    }
+
     PageScaffold(
-        title = "添加地址",
+        title = if (id?.isNotEmpty() ?: false) "修改地址" else "添加地址",
         bottomBar = {
             PageFootButton(text = "立即保存", disabled = disabled) {
-                val params = mapOf(
+                val params = mutableMapOf(
                     "phone" to uiState.phone,
                     "address" to uiState.location,
                     "username" to uiState.userName,
@@ -54,64 +66,86 @@ fun AddUserAddressScreen() {
                     "regionCode" to uiState.regions.last().value,
                     "regionName" to uiState.regions.last().label,
                 )
-                viewModel.add(params)
+                if (id?.isNotEmpty() ?: false) {
+                    params["addressId"] = id
+                    viewModel.updateAddress(params)
+                } else {
+                    viewModel.addAddress(params)
+                }
             }
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .padding(horizontal = 12.dp)
-                .verticalScroll(scrollState)
-                .background(white, corner10)
-                .padding(horizontal = 12.dp)
-        ) {
-            FormItemInput(
-                label = "姓名",
-                allowClear = false,
-                value = uiState.userName,
-                keyboardType = KeyboardType.Text,
-            ) { input ->
-                viewModel.updateUIState { it.copy(userName = input) }
-            }
-            FormItemInput(
-                label = "联系电话",
-                allowClear = false,
-                value = uiState.phone,
-                keyboardType = KeyboardType.Phone,
-            ) { input ->
-                viewModel.updateUIState { it.copy(phone = input) }
-            }
-            FormItemSelectRegion(
-                label = "所在地区",
-                value = uiState.regions,
-            ) { input ->
-                viewModel.updateUIState { it.copy(regions = input) }
-            }
-            FormItemLocation(label = "详细地址", value = uiState.location) { input ->
-                viewModel.updateUIState { it.copy(location = input) }
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
+        if (uiState.isLoading && id?.isNotEmpty() ?: false) {
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .height(62.dp)
-                    .fillMaxWidth(),
+                    .padding(paddingValues)
+                    .fillMaxWidth()
+                    .height(300.dp),
             ) {
-                QmCheckbox(
-                    value = uiState.isDefault,
-                    size = 22.dp,
-                    radius = 11.dp,
-                    onChange = { checked ->
-                        viewModel.updateUIState { it.copy(isDefault = checked) }
-                    }
+                CircularProgressIndicator(
+                    strokeWidth = 2.dp,
+                    strokeCap = StrokeCap.Round,
+                    modifier = Modifier.size(30.dp),
+                    color = MaterialTheme.colorScheme.primary,
                 )
-                Text(
-                    text = "设置为默认地址",
-                    color = black4,
-                    fontSize = 14.sp,
-                    lineHeight = 14.sp,
-                    modifier = Modifier.padding(start = 6.dp),
-                )
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .padding(horizontal = 12.dp)
+                    .verticalScroll(scrollState)
+                    .background(white, corner10)
+                    .padding(horizontal = 12.dp)
+            ) {
+                FormItemInput(
+                    label = "姓名",
+                    allowClear = false,
+                    value = uiState.userName,
+                    keyboardType = KeyboardType.Text,
+                ) { input ->
+                    viewModel.updateUIState { it.copy(userName = input) }
+                }
+                FormItemInput(
+                    label = "联系电话",
+                    allowClear = false,
+                    value = uiState.phone,
+                    keyboardType = KeyboardType.Phone,
+                ) { input ->
+                    viewModel.updateUIState { it.copy(phone = input) }
+                }
+                FormItemSelectRegion(
+                    label = "所在地区",
+                    value = uiState.regions,
+                ) { input ->
+                    viewModel.updateUIState { it.copy(regions = input) }
+                }
+                FormItemLocation(label = "详细地址", value = uiState.location) { input ->
+                    viewModel.updateUIState { it.copy(location = input) }
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .height(62.dp)
+                        .fillMaxWidth(),
+                ) {
+                    QmCheckbox(
+                        value = uiState.isDefault,
+                        size = 22.dp,
+                        radius = 11.dp,
+                        onChange = { checked ->
+                            viewModel.updateUIState { it.copy(isDefault = checked) }
+                        }
+                    )
+                    Text(
+                        text = "设置为默认地址",
+                        color = black4,
+                        fontSize = 14.sp,
+                        lineHeight = 14.sp,
+                        modifier = Modifier.padding(start = 6.dp),
+                    )
+                }
             }
         }
     }
