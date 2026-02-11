@@ -3,7 +3,7 @@
 
     <uses-feature android:name="android.hardware.camera.any" />
 
-
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -44,6 +44,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Qm_app">
         <service android:name="com.amap.api.location.APSService" />
+        <service
+            android:name=".common.TrackingUserForegroundService"
+            android:foregroundServiceType="location" />
+
         <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="592229d4ba3bb5736c7fea48c093113e" />

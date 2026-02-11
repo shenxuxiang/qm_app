@@ -119,9 +119,11 @@ class AlertUiEvent private constructor(
             targetValue = if (showAlert.value) 1f else 0f,
             animationSpec = tween(durationMillis = animationMillis),
             finishedListener = { alpha ->
-                if (alpha == 0f) dispose()
-                // 是否已经确认
-                if (hasConfirm.value) onConfirm?.invoke() else onCancel?.invoke()
+                if (alpha == 0f) {
+                    dispose()
+                    // 是否已经确认
+                    if (hasConfirm.value) onConfirm?.invoke() else onCancel?.invoke()
+                }
             }
         )
         val scaleAnimate = remember { Animatable(initialScale) }
@@ -201,7 +203,10 @@ class AlertUiEvent private constructor(
                                 ButtonWidget(
                                     text = cancelText,
                                     type = ButtonWidgetType.Default,
-                                    onTap = { showAlert.value = false },
+                                    onTap = {
+                                        hasConfirm.value = false
+                                        showAlert.value = false
+                                    },
                                     modifier = Modifier
                                         .padding(horizontal = 9.dp)
                                         .size(width = 120.dp, height = 36.dp),

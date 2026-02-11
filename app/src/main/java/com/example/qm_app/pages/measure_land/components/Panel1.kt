@@ -1,5 +1,8 @@
 package com.example.qm_app.pages.measure_land.components
 
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -10,6 +13,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +25,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.amap.api.maps.AMap
@@ -28,10 +33,12 @@ import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.MyLocationStyle
 import com.example.qm_app.R
 import com.example.qm_app.common.AMapView
-import com.example.qm_app.common.UserLocation
+import com.example.qm_app.common.UserLocationManager
 import com.example.qm_app.pages.measure_land.MeasureState
 import com.example.qm_app.pages.measure_land.Model1
 import com.example.qm_app.ui.theme.primaryColor
+
+const val POST_NOTIFICATIONS = android.Manifest.permission.POST_NOTIFICATIONS
 
 @Composable
 fun Panel1() {
@@ -66,7 +73,7 @@ fun Panel1() {
                 mapView.aMap.mapType = AMap.MAP_TYPE_SATELLITE
                 model.updateUIState { it.copy(aMapView = mapView) }
                 mapView.aMap.setPointToCenter(mapCenterPoint.x, mapCenterPoint.y)
-                UserLocation.getCurrentLocation { location ->
+                UserLocationManager.getCurrentLocation { location ->
                     location?.let {
                         val myLocationStyle = MyLocationStyle().apply {
                             interval(3000)
@@ -86,12 +93,40 @@ fun Panel1() {
             }
         }
 
-        fun handleStart() {
-            model.updateUIState { it.copy(measureState = MeasureState.InProgress) }
+        /* 获取通知权限 */
+        val hasNotificationPermission = remember {
+            mutableStateOf(
+                ContextCompat.checkSelfPermission(
+                    context,
+                    POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            )
         }
 
+        /* 请求通知权限 */
+        val requestPermission =
+            rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+                hasNotificationPermission.value = it
+                if (it) {
+                    model.updateUIState { ui -> ui.copy(measureState = MeasureState.InProgress) }
+                    model.handleStartTracking(context)
+                }
+            }
+
+        /* 开始追踪轨迹 */
+        fun handleStart() {
+            if (hasNotificationPermission.value) {
+                model.updateUIState { it.copy(measureState = MeasureState.InProgress) }
+                model.handleStartTracking(context)
+            } else {
+                requestPermission.launch(POST_NOTIFICATIONS)
+            }
+        }
+
+        /* 暂停追踪轨迹 */
         fun handlePause() {
             model.updateUIState { it.copy(measureState = MeasureState.Pause) }
+            model.handleStopTracking()
         }
 
         AndroidView(
@@ -100,7 +135,6 @@ fun Panel1() {
         )
 
         ControllerPanel1(
-            model = model,
             uiState = uiState,
             onStart = ::handleStart,
             onPause = ::handlePause,

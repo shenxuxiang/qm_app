@@ -31,7 +31,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.amap.api.maps.model.LatLng
 import com.example.qm_app.R
 import com.example.qm_app.common.QmIcons
-import com.example.qm_app.common.UserLocation
+import com.example.qm_app.common.UserLocationManager
 import com.example.qm_app.components.toast.Toast
 import com.example.qm_app.common.AMapView
 import com.example.qm_app.pages.map_location.components.AMapViewWidget
@@ -94,7 +94,7 @@ fun MapLocationScreen() {
             viewModel.updatePoiList()
         })
 
-        UserLocation.getCurrentLocation { location ->
+        UserLocationManager.getCurrentLocation { location ->
             location?.let {
                 val point = LatLng(it.latitude, it.longitude)
                 view.moveCamera(point, initialZoom)
@@ -106,7 +106,7 @@ fun MapLocationScreen() {
     }
 
     fun handleResetUserLocation() {
-        UserLocation.getCurrentLocation { location ->
+        UserLocationManager.getCurrentLocation { location ->
             location?.let {
                 val point = LatLng(it.latitude, it.longitude)
                 uiState.aMapView?.aMap?.clear()

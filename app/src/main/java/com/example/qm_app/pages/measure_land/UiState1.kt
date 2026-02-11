@@ -10,4 +10,6 @@ data class UiState1(
     val initialZoom: Float = 18f,
     val aMapView: AMapView? = null,
     val measureState: MeasureState = MeasureState.Stop,
+    val area: Float = 0f,
+    val perimeter: Float = 0f,
 )
