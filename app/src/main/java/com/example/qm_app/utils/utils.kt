@@ -195,3 +195,13 @@ fun saveImageToGallery(context: Context, sourceFile: File) {
     // 删除临时文件
     // sourceFile.delete()
 }
+
+fun dpToPx(dp: Int): Float {
+    val metrics = QmApplication.context.resources.displayMetrics
+    return (dp * metrics.density)
+}
+
+fun dpToPx(dp: Float): Float {
+    val metrics = QmApplication.context.resources.displayMetrics
+    return (dp * metrics.density)
+}

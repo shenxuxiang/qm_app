@@ -51,10 +51,6 @@
         <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="592229d4ba3bb5736c7fea48c093113e" />
-        <activity
-            android:name=".CameraActivity"
-            android:exported="false"
-            android:theme="@style/Theme.MyApp" />
         <!-- <receiver -->
         <!-- android:name=".broadcast.SmsBroadcastReceiver" -->
         <!-- android:enabled="true" -->
@@ -64,6 +60,8 @@
             android:exported="true"
             android:launchMode="singleTop"
             android:theme="@style/Theme.Qm_app"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:windowSoftInputMode="adjustResize|stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

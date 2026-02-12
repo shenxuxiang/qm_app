@@ -1,0 +1,135 @@
+kotlin version: 2.0.21
+error message: org.jetbrains.kotlin.backend.common.BackendException: Backend Internal error: Exception during IR lowering
+File being compiled: H:/2025/qm_app/app/src/main/java/com/example/qm_app/pages/measure_land/Model1.kt
+The root cause java.lang.RuntimeException was thrown at: org.jetbrains.kotlin.backend.jvm.codegen.FunctionCodegen.generate(FunctionCodegen.kt:47)
+	at org.jetbrains.kotlin.backend.common.CodegenUtil.reportBackendException(CodegenUtil.kt:253)
+	at org.jetbrains.kotlin.backend.common.CodegenUtil.reportBackendException$default(CodegenUtil.kt:236)
+	at org.jetbrains.kotlin.backend.common.phaser.PerformByIrFilePhase.invokeSequential(performByIrFile.kt:65)
+	at org.jetbrains.kotlin.backend.common.phaser.PerformByIrFilePhase.invoke(performByIrFile.kt:52)
+	at org.jetbrains.kotlin.backend.common.phaser.PerformByIrFilePhase.invoke(performByIrFile.kt:38)
+	at org.jetbrains.kotlin.backend.common.phaser.NamedCompilerPhase.phaseBody(CompilerPhase.kt:166)
+	at org.jetbrains.kotlin.backend.common.phaser.AbstractNamedCompilerPhase.invoke(CompilerPhase.kt:113)
+	at org.jetbrains.kotlin.backend.common.phaser.CompositePhase.invoke(PhaseBuilders.kt:27)
+	at org.jetbrains.kotlin.backend.common.phaser.CompositePhase.invoke(PhaseBuilders.kt:14)
+	at org.jetbrains.kotlin.backend.common.phaser.NamedCompilerPhase.phaseBody(CompilerPhase.kt:166)
+	at org.jetbrains.kotlin.backend.common.phaser.AbstractNamedCompilerPhase.invoke(CompilerPhase.kt:113)
+	at org.jetbrains.kotlin.backend.common.phaser.CompilerPhaseKt.invokeToplevel(CompilerPhase.kt:62)
+	at org.jetbrains.kotlin.backend.jvm.JvmIrCodegenFactory.invokeCodegen(JvmIrCodegenFactory.kt:371)
+	at org.jetbrains.kotlin.codegen.CodegenFactory.generateModule(CodegenFactory.kt:47)
+	at org.jetbrains.kotlin.backend.jvm.JvmIrCodegenFactory.generateModuleInFrontendIRMode(JvmIrCodegenFactory.kt:433)
+	at org.jetbrains.kotlin.cli.jvm.compiler.pipeline.JvmCompilerPipelineKt.generateCodeFromIr(jvmCompilerPipeline.kt:246)
+	at org.jetbrains.kotlin.cli.jvm.compiler.pipeline.JvmCompilerPipelineKt.compileModulesUsingFrontendIrAndLightTree(jvmCompilerPipeline.kt:142)
+	at org.jetbrains.kotlin.cli.jvm.K2JVMCompiler.doExecute(K2JVMCompiler.kt:148)
+	at org.jetbrains.kotlin.cli.jvm.K2JVMCompiler.doExecute(K2JVMCompiler.kt:43)
+	at org.jetbrains.kotlin.cli.common.CLICompiler.execImpl(CLICompiler.kt:103)
+	at org.jetbrains.kotlin.cli.common.CLICompiler.execImpl(CLICompiler.kt:49)
+	at org.jetbrains.kotlin.cli.common.CLITool.exec(CLITool.kt:101)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.runCompiler(IncrementalJvmCompilerRunner.kt:464)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.runCompiler(IncrementalJvmCompilerRunner.kt:73)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.doCompile(IncrementalCompilerRunner.kt:506)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compileImpl(IncrementalCompilerRunner.kt:423)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.tryCompileIncrementally$lambda$9$compile(IncrementalCompilerRunner.kt:249)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.tryCompileIncrementally(IncrementalCompilerRunner.kt:267)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compile(IncrementalCompilerRunner.kt:120)
+	at org.jetbrains.kotlin.daemon.CompileServiceImplBase.execIncrementalCompiler(CompileServiceImpl.kt:675)
+	at org.jetbrains.kotlin.daemon.CompileServiceImplBase.access$execIncrementalCompiler(CompileServiceImpl.kt:92)
+	at org.jetbrains.kotlin.daemon.CompileServiceImpl.compile(CompileServiceImpl.kt:1660)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)
+	at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+	at java.rmi/sun.rmi.server.UnicastServerRef.dispatch(Unknown Source)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Unknown Source)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Unknown Source)
+	at java.base/java.security.AccessController.doPrivileged(Unknown Source)
+	at java.rmi/sun.rmi.transport.Transport.serviceCall(Unknown Source)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport.handleMessages(Unknown Source)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(Unknown Source)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.lambda$run$0(Unknown Source)
+	at java.base/java.security.AccessController.doPrivileged(Unknown Source)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.base/java.lang.Thread.run(Unknown Source)
+Caused by: java.lang.RuntimeException: Exception while generating code for:
+CONSTRUCTOR visibility:public <> () returnType:com.example.qm_app.pages.measure_land.Model1 [primary]
+  annotations:
+    Inject
+  BLOCK_BODY
+    ERROR_CALL 'Cannot find delegated constructor call' type=androidx.lifecycle.ViewModel
+    BLOCK type=kotlin.Unit origin=null
+      SET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:_uiState1 type:kotlinx.coroutines.flow.MutableStateFlow<com.example.qm_app.pages.measure_land.UiState1> visibility:private [final]' type=kotlin.Unit origin=INITIALIZE_FIELD
+        receiver: GET_VAR '<this>: com.example.qm_app.pages.measure_land.Model1 declared in com.example.qm_app.pages.measure_land.Model1' type=com.example.qm_app.pages.measure_land.Model1 origin=null
+        value: CALL 'public final fun MutableStateFlow <T> (value: T of kotlinx.coroutines.flow.StateFlowKt.MutableStateFlow): kotlinx.coroutines.flow.MutableStateFlow<T of kotlinx.coroutines.flow.StateFlowKt.MutableStateFlow> declared in kotlinx.coroutines.flow.StateFlowKt' type=kotlinx.coroutines.flow.MutableStateFlow<com.example.qm_app.pages.measure_land.UiState1> origin=null
+          <T>: com.example.qm_app.pages.measure_land.UiState1
+          value: CONSTRUCTOR_CALL 'public constructor <init> (initialZoom: kotlin.Float, aMapView: com.example.qm_app.common.AMapView?, measureState: com.example.qm_app.pages.measure_land.MeasureState?, area: kotlin.Float, perimeter: kotlin.Float, $mask0: kotlin.Int, $marker: kotlin.jvm.internal.DefaultConstructorMarker?) declared in com.example.qm_app.pages.measure_land.UiState1' type=com.example.qm_app.pages.measure_land.UiState1 origin=DEFAULT_DISPATCH_CALL
+            initialZoom: COMPOSITE type=kotlin.Float origin=DEFAULT_VALUE
+              CONST Float type=kotlin.Float value=0.0
+            aMapView: COMPOSITE type=com.example.qm_app.common.AMapView? origin=DEFAULT_VALUE
+              CONST Null type=com.example.qm_app.common.AMapView? value=null
+            measureState: COMPOSITE type=com.example.qm_app.pages.measure_land.MeasureState? origin=DEFAULT_VALUE
+              CONST Null type=com.example.qm_app.pages.measure_land.MeasureState? value=null
+            area: COMPOSITE type=kotlin.Float origin=DEFAULT_VALUE
+              CONST Float type=kotlin.Float value=0.0
+            perimeter: COMPOSITE type=kotlin.Float origin=DEFAULT_VALUE
+              CONST Float type=kotlin.Float value=0.0
+            $mask0: CONST Int type=kotlin.Int value=31
+            $marker: CONST Null type=kotlin.jvm.internal.DefaultConstructorMarker? value=null
+      SET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:uiState type:kotlinx.coroutines.flow.StateFlow<com.example.qm_app.pages.measure_land.UiState1> visibility:private [final]' type=kotlin.Unit origin=INITIALIZE_FIELD
+        receiver: GET_VAR '<this>: com.example.qm_app.pages.measure_land.Model1 declared in com.example.qm_app.pages.measure_land.Model1' type=com.example.qm_app.pages.measure_land.Model1 origin=null
+        value: CALL 'public final fun asStateFlow <T> (): kotlinx.coroutines.flow.StateFlow<T of kotlinx.coroutines.flow.FlowKt.asStateFlow> declared in kotlinx.coroutines.flow.FlowKt' type=kotlinx.coroutines.flow.StateFlow<com.example.qm_app.pages.measure_land.UiState1> origin=null
+          <T>: com.example.qm_app.pages.measure_land.UiState1
+          $receiver: GET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:_uiState1 type:kotlinx.coroutines.flow.MutableStateFlow<com.example.qm_app.pages.measure_land.UiState1> visibility:private [final]' type=kotlinx.coroutines.flow.MutableStateFlow<com.example.qm_app.pages.measure_land.UiState1> origin=null
+            receiver: GET_VAR '<this>: com.example.qm_app.pages.measure_land.Model1 declared in com.example.qm_app.pages.measure_land.Model1' type=com.example.qm_app.pages.measure_land.Model1 origin=null
+      SET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:serviceConnection type:android.content.ServiceConnection? visibility:private' type=kotlin.Unit origin=INITIALIZE_FIELD
+        receiver: GET_VAR '<this>: com.example.qm_app.pages.measure_land.Model1 declared in com.example.qm_app.pages.measure_land.Model1' type=com.example.qm_app.pages.measure_land.Model1 origin=null
+        value: CONST Null type=kotlin.Nothing? value=null
+      SET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:trackingService type:com.example.qm_app.common.TrackingUserForegroundService? visibility:private' type=kotlin.Unit origin=INITIALIZE_FIELD
+        receiver: GET_VAR '<this>: com.example.qm_app.pages.measure_land.Model1 declared in com.example.qm_app.pages.measure_land.Model1' type=com.example.qm_app.pages.measure_land.Model1 origin=null
+        value: CONST Null type=kotlin.Nothing? value=null
+      SET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:polyline type:com.amap.api.maps.model.Polyline? visibility:private' type=kotlin.Unit origin=INITIALIZE_FIELD
+        receiver: GET_VAR '<this>: com.example.qm_app.pages.measure_land.Model1 declared in com.example.qm_app.pages.measure_land.Model1' type=com.example.qm_app.pages.measure_land.Model1 origin=null
+        value: CONST Null type=kotlin.Nothing? value=null
+      SET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:polylineWidth type:kotlin.Float visibility:private [final]' type=kotlin.Unit origin=INITIALIZE_FIELD
+        receiver: GET_VAR '<this>: com.example.qm_app.pages.measure_land.Model1 declared in com.example.qm_app.pages.measure_land.Model1' type=com.example.qm_app.pages.measure_land.Model1 origin=null
+        value: CALL 'public final fun dpToPx (dp: kotlin.Int): kotlin.Float declared in com.example.qm_app.utils.UtilsKt' type=kotlin.Float origin=null
+          dp: CONST Int type=kotlin.Int value=7
+      SET_FIELD 'FIELD PROPERTY_BACKING_FIELD name:polylineTexture type:@[FlexibleNullability] com.amap.api.maps.model.BitmapDescriptor? visibility:private [final]' type=kotlin.Unit origin=INITIALIZE_FIELD
+        receiver: GET_VAR '<this>: com.example.qm_app.pages.measure_land.Model1 declared in com.example.qm_app.pages.measure_land.Model1' type=com.example.qm_app.pages.measure_land.Model1 origin=null
+        value: CALL 'public open fun fromResource (p0: kotlin.Int): @[FlexibleNullability] com.amap.api.maps.model.BitmapDescriptor? declared in com.amap.api.maps.model.BitmapDescriptorFactory' type=@[FlexibleNullability] com.amap.api.maps.model.BitmapDescriptor? origin=null
+          p0: GET_FIELD 'FIELD IR_EXTERNAL_JAVA_DECLARATION_STUB name:amap_line_texture_green type:kotlin.Int visibility:public [static] declared in com.example.qm_app.R.drawable' type=kotlin.Int superQualifierSymbol=com.example.qm_app.R.drawable origin=null
+
+	at org.jetbrains.kotlin.backend.jvm.codegen.FunctionCodegen.generate(FunctionCodegen.kt:47)
+	at org.jetbrains.kotlin.backend.jvm.codegen.FunctionCodegen.generate$default(FunctionCodegen.kt:40)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ClassCodegen.generateMethodNode(ClassCodegen.kt:406)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ClassCodegen.generateMethod(ClassCodegen.kt:423)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ClassCodegen.generate(ClassCodegen.kt:168)
+	at org.jetbrains.kotlin.backend.jvm.FileCodegen.lower(JvmPhases.kt:39)
+	at org.jetbrains.kotlin.backend.common.phaser.PhaseFactoriesKt.createFilePhase$lambda$4(PhaseFactories.kt:71)
+	at org.jetbrains.kotlin.backend.common.phaser.PhaseBuildersKt$createSimpleNamedCompilerPhase$1.phaseBody(PhaseBuilders.kt:69)
+	at org.jetbrains.kotlin.backend.common.phaser.SimpleNamedCompilerPhase.phaseBody(CompilerPhase.kt:226)
+	at org.jetbrains.kotlin.backend.common.phaser.AbstractNamedCompilerPhase.invoke(CompilerPhase.kt:113)
+	at org.jetbrains.kotlin.backend.common.phaser.PerformByIrFilePhase.invokeSequential(performByIrFile.kt:62)
+	... 44 more
+Caused by: java.lang.AssertionError: Unexpected IR element found during code generation. Either code generation for it is not implemented, or it should have been lowered:
+ERROR_CALL 'Cannot find delegated constructor call' type=androidx.lifecycle.ViewModel
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitElement(ExpressionCodegen.kt:991)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitElement(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:83)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitExpression(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitExpression(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitErrorExpression(IrElementVisitor.kt:194)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitErrorExpression(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitErrorExpression(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitErrorCallExpression(IrElementVisitor.kt:197)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitErrorCallExpression(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitErrorCallExpression(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.ir.expressions.IrErrorCallExpression.accept(IrErrorCallExpression.kt:24)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitStatementContainer(ExpressionCodegen.kt:579)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitBlockBody(ExpressionCodegen.kt:584)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitBlockBody(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.accept(IrBlockBody.kt:20)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.generate(ExpressionCodegen.kt:240)
+	at org.jetbrains.kotlin.backend.jvm.codegen.FunctionCodegen.doGenerate(FunctionCodegen.kt:123)
+	at org.jetbrains.kotlin.backend.jvm.codegen.FunctionCodegen.generate(FunctionCodegen.kt:44)
+	... 54 more
+
+

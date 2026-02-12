@@ -33,6 +33,7 @@ import com.example.qm_app.ui.theme.black6
 fun ControllerPanel1(
     uiState: UiState1,
     modifier: Modifier,
+    onExit: () -> Unit,
     onStart: () -> Unit,
     onPause: () -> Unit,
 ) {
@@ -139,7 +140,7 @@ fun ControllerPanel1(
                 type = ButtonWidgetType.Default,
                 disabled = uiState.measureState == MeasureState.Stop,
                 modifier = Modifier.size(106.dp, 36.dp),
-                onTap = {}
+                onTap = { onExit() }
             )
             Spacer(modifier = Modifier.size(22.dp))
             ButtonWidget(

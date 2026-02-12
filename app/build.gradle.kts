@@ -6,8 +6,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("kotlin-parcelize")  // 添加这行
-    id("kotlin-kapt")
+
+    id("kotlin-parcelize")
+    id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
 }
 
@@ -210,7 +211,6 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
     implementation("me.onebone:toolbar-compose:2.3.5")
-    implementation("com.google.dagger:hilt-android:2.50")
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.compose.ui.geometry)
     implementation(libs.androidx.room.ktx)
@@ -226,7 +226,8 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.material3)
     implementation(files("src\\main\\jniLibs\\AMap3DMap_10.1.600_AMapSearch_9.7.4_AMapLocation_6.5.1_20251020.jar"))
-    kapt("com.google.dagger:hilt-android-compiler:2.50")  // 注解处理器
+    ksp("com.google.dagger:hilt-compiler:2.57.1")
+    implementation("com.google.dagger:hilt-android:2.57.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
     implementation("androidx.navigation:navigation-compose:2.9.6")
     implementation(libs.androidx.core.ktx)

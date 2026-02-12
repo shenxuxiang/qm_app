@@ -1,8 +1,13 @@
 package com.example.qm_app.pages.measure_land.components
 
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -11,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,10 +40,10 @@ import com.amap.api.maps.model.MyLocationStyle
 import com.example.qm_app.R
 import com.example.qm_app.common.AMapView
 import com.example.qm_app.common.UserLocationManager
-import com.example.qm_app.pages.measure_land.MeasureState
 import com.example.qm_app.pages.measure_land.Model1
 import com.example.qm_app.ui.theme.primaryColor
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 const val POST_NOTIFICATIONS = android.Manifest.permission.POST_NOTIFICATIONS
 
 @Composable
@@ -65,13 +71,13 @@ fun Panel1() {
             )
         }
 
-        val model = hiltViewModel<Model1>()
+        val model: Model1 = hiltViewModel()
         val uiState by model.uiState.collectAsState()
 
         val aMapView = remember {
             AMapView(context, lifecycleOwner.lifecycle) { mapView ->
                 mapView.aMap.mapType = AMap.MAP_TYPE_SATELLITE
-                model.updateUIState { it.copy(aMapView = mapView) }
+                model.updateUIState { copy(aMapView = mapView) }
                 mapView.aMap.setPointToCenter(mapCenterPoint.x, mapCenterPoint.y)
                 UserLocationManager.getCurrentLocation { location ->
                     location?.let {
@@ -96,10 +102,15 @@ fun Panel1() {
         /* 获取通知权限 */
         val hasNotificationPermission = remember {
             mutableStateOf(
-                ContextCompat.checkSelfPermission(
-                    context,
-                    POST_NOTIFICATIONS
-                ) == PackageManager.PERMISSION_GRANTED
+                value =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED
+                    } else {
+                        true
+                    }
             )
         }
 
@@ -108,25 +119,41 @@ fun Panel1() {
             rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
                 hasNotificationPermission.value = it
                 if (it) {
-                    model.updateUIState { ui -> ui.copy(measureState = MeasureState.InProgress) }
-                    model.handleStartTracking(context)
+                    model.handleStartTracking()
                 }
             }
 
         /* 开始追踪轨迹 */
         fun handleStart() {
             if (hasNotificationPermission.value) {
-                model.updateUIState { it.copy(measureState = MeasureState.InProgress) }
-                model.handleStartTracking(context)
+                model.handleStartTracking()
             } else {
+                @SuppressLint("ALL")
                 requestPermission.launch(POST_NOTIFICATIONS)
             }
         }
 
         /* 暂停追踪轨迹 */
         fun handlePause() {
-            model.updateUIState { it.copy(measureState = MeasureState.Pause) }
-            model.handleStopTracking()
+            model.handlePauseTracking()
+        }
+
+        /* 退出测量 */
+        fun handleExitMeasure() {
+            model.handleExitMeasure()
+        }
+
+
+        val onBackPressedDispatcher =
+            checkNotNull(LocalOnBackPressedDispatcherOwner.current).onBackPressedDispatcher
+        DisposableEffect(Unit) {
+            val onBackPressedCallback = object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+
+                }
+            }
+            onBackPressedDispatcher.addCallback(onBackPressedCallback)
+            onDispose { onBackPressedCallback.remove() }
         }
 
         AndroidView(
@@ -138,6 +165,7 @@ fun Panel1() {
             uiState = uiState,
             onStart = ::handleStart,
             onPause = ::handlePause,
+            onExit = ::handleExitMeasure,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(155.dp)

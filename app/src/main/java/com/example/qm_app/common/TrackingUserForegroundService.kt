@@ -44,6 +44,8 @@ class TrackingUserForegroundService : Service() {
          * */
         fun unbindService() {
             ctx?.unbindService(serviceConnection!!)
+            ctx?.stopService(intent)
+            
             ctx = null
             intent = null
             serviceConnection = null
