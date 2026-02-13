@@ -45,7 +45,7 @@ class TrackingUserForegroundService : Service() {
         fun unbindService() {
             ctx?.unbindService(serviceConnection!!)
             ctx?.stopService(intent)
-            
+
             ctx = null
             intent = null
             serviceConnection = null
@@ -54,7 +54,6 @@ class TrackingUserForegroundService : Service() {
 
 
     override fun onBind(intent: Intent?): IBinder {
-        println("===========================onBind")
         return ServiceBind()
     }
 
@@ -66,7 +65,6 @@ class TrackingUserForegroundService : Service() {
 
 
     override fun onCreate() {
-        println("===========================onCreate")
         super.onCreate()
         notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val channel = NotificationChannel(

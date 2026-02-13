@@ -3,11 +3,13 @@ package com.example.qm_app.utils
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Base64
+import androidx.annotation.DrawableRes
 import com.example.qm_app.common.QmAppConfig
 import com.example.qm_app.common.QmApplication
 import com.example.qm_app.pages.main.RegionSourceTree
@@ -204,4 +206,40 @@ fun dpToPx(dp: Int): Float {
 fun dpToPx(dp: Float): Float {
     val metrics = QmApplication.context.resources.displayMetrics
     return (dp * metrics.density)
+}
+
+/**
+ * 旋转图像
+ * */
+fun rotateImage(rotate: Float, image: Bitmap): Bitmap {
+    val matrix = android.graphics.Matrix().apply {
+        postRotate(rotate)
+    }
+
+    return Bitmap.createBitmap(
+        image,
+        0,
+        0,
+        image.width,
+        image.height,
+        matrix,
+        true,
+    )
+}
+
+fun rotateImage(rotate: Float, @DrawableRes image: Int): Bitmap {
+    val source = BitmapFactory.decodeResource(QmApplication.context.resources, image)
+    val matrix = android.graphics.Matrix().apply {
+        postRotate(rotate)
+    }
+
+    return Bitmap.createBitmap(
+        source,
+        0,
+        0,
+        source.width,
+        source.height,
+        matrix,
+        true,
+    )
 }

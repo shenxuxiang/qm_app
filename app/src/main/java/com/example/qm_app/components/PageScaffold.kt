@@ -32,8 +32,9 @@ import com.example.qm_app.ui.theme.black4
 @Composable
 fun PageScaffold(
     title: String,
-    actions: @Composable (RowScope.() -> Unit) = {},
+    onBack: (() -> Unit)? = null,
     bottomBar: @Composable () -> Unit = {},
+    actions: @Composable (RowScope.() -> Unit) = {},
     background: Painter = painterResource(R.drawable.background_img_variant),
     content: @Composable (paddingValues: PaddingValues) -> Unit,
 ) {
@@ -77,7 +78,7 @@ fun PageScaffold(
                                     .clickable(
                                         indication = null,
                                         interactionSource = null,
-                                        onClick = { Router.popBackStack() },
+                                        onClick = { onBack?.invoke() ?: Router.popBackStack() },
                                     )
                             )
                         }

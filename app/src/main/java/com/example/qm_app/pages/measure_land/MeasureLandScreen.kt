@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -16,8 +18,10 @@ import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
@@ -25,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.qm_app.components.Alert
 import com.example.qm_app.components.ButtonGroupOption
 import com.example.qm_app.components.ButtonGroupWidget
@@ -34,6 +39,7 @@ import com.example.qm_app.remember.rememberCompositionLocationPermission
 import com.example.qm_app.router.Router
 import com.example.qm_app.ui.theme.corner6
 import com.example.qm_app.ui.theme.white
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 const val ACCESS_FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
@@ -81,7 +87,47 @@ fun MeasureLandScreen() {
             }
         }
 
-    // 当用户没有权限时，请求权限
+    val coroutineScope = rememberCoroutineScope()
+    val canPop = remember { mutableStateOf(true) }
+    val pagerState = rememberPagerState(initialPage = 0) { 3 }
+    val buttonKey = rememberSaveable { mutableStateOf("0") }
+    val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
+    val eventChannel = remember { Channel<Boolean>(Channel.CONFLATED) }
+
+    val model1: Model1 = hiltViewModel()
+
+    fun handleConfirmExit() {
+        Alert.confirm(
+            view = view,
+            text = "确定要退出吗？",
+            onConfirm = {
+                model1.handleExitMeasure()
+                Router.popBackStack()
+            },
+        )
+    }
+
+    fun handleBack() {
+        if (canPop.value) {
+            Router.popBackStack()
+        } else {
+            handleConfirmExit()
+        }
+    }
+
+    /**
+     * 添加一个监听器，可以在子子节点中设置 canPop
+     * 每当用户开始测量时，都会触发 trySend(false)
+     * 每当用户退出测量时，都会触发 trySend(true)
+     * */
+    LaunchedEffect(Channel) {
+        for (msg in eventChannel) {
+            val value = eventChannel.tryReceive().getOrNull() ?: msg
+            canPop.value = value
+        }
+    }
+
+    /* 当用户没有权限时，请求权限 */
     LaunchedEffect(Unit) {
         if (!compositionLocationPermission.hasPermission) {
             requestPermission.launch(
@@ -89,11 +135,23 @@ fun MeasureLandScreen() {
             )
         }
     }
-    val pagerState = rememberPagerState(initialPage = 0) { 3 }
-    val buttonKey = rememberSaveable { mutableStateOf("0") }
-    val coroutineScope = rememberCoroutineScope()
 
-    PageScaffold(title = "测量宝") { paddingValues ->
+    DisposableEffect(Unit) {
+        val onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (canPop.value) {
+                    Router.popBackStack()
+                } else {
+                    handleConfirmExit()
+                }
+            }
+        }
+
+        onBackPressedDispatcherOwner?.onBackPressedDispatcher?.addCallback(onBackPressedCallback)
+        onDispose { onBackPressedCallback.remove() }
+    }
+
+    PageScaffold(title = "测量宝", onBack = ::handleBack) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
             HorizontalPager(
                 state = pagerState,
@@ -102,7 +160,7 @@ fun MeasureLandScreen() {
                 beyondViewportPageCount = 1,
             ) {
                 when (it) {
-                    0 -> Panel1()
+                    0 -> Panel1(event = eventChannel, model = model1)
                     1 -> Text("定点模式")
                     2 -> Text("点选模式")
                 }
@@ -118,9 +176,13 @@ fun MeasureLandScreen() {
                     .clip(corner6)
                     .background(white)
             ) {
-                coroutineScope.launch {
-                    buttonKey.value = BUTTON_GROUP_OPTIONS[it].value
-                    pagerState.scrollToPage(it)
+                if (canPop.value) {
+                    coroutineScope.launch {
+                        buttonKey.value = BUTTON_GROUP_OPTIONS[it].value
+                        pagerState.scrollToPage(it)
+                    }
+                } else {
+                    Alert.confirm(text = "正在测量中，不能切换模式~", view = view)
                 }
             }
         }

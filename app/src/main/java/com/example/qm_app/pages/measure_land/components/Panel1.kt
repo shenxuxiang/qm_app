@@ -3,8 +3,6 @@ package com.example.qm_app.pages.measure_land.components
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -16,11 +14,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
@@ -32,7 +30,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.amap.api.maps.AMap
 import com.amap.api.maps.model.LatLng
@@ -40,14 +37,19 @@ import com.amap.api.maps.model.MyLocationStyle
 import com.example.qm_app.R
 import com.example.qm_app.common.AMapView
 import com.example.qm_app.common.UserLocationManager
+import com.example.qm_app.components.Alert
 import com.example.qm_app.pages.measure_land.Model1
 import com.example.qm_app.ui.theme.primaryColor
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 const val POST_NOTIFICATIONS = android.Manifest.permission.POST_NOTIFICATIONS
 
 @Composable
-fun Panel1() {
+fun Panel1(event: Channel<Boolean>, model: Model1) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.TopStart,
@@ -71,8 +73,9 @@ fun Panel1() {
             )
         }
 
-        val model: Model1 = hiltViewModel()
         val uiState by model.uiState.collectAsState()
+
+        val coroutineScope = rememberCoroutineScope()
 
         val aMapView = remember {
             AMapView(context, lifecycleOwner.lifecycle) { mapView ->
@@ -82,10 +85,10 @@ fun Panel1() {
                 UserLocationManager.getCurrentLocation { location ->
                     location?.let {
                         val myLocationStyle = MyLocationStyle().apply {
-                            interval(3000)
+                            interval(1000)
                             strokeWidth(0f)
                             radiusFillColor(primaryColor.copy(alpha = 0.3f).toArgb())
-                            myLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE)
+                            myLocationType(MyLocationStyle.LOCATION_TYPE_FOLLOW_NO_CENTER)
                         }
 
                         mapView.aMap.isMyLocationEnabled = true
@@ -96,6 +99,25 @@ fun Panel1() {
                         )
                     }
                 }
+                /* 添加用户拖拽监听 */
+                var job: Job? = null
+                mapView.setAMapDragGesture(
+                    onDrag = {
+                        if (!uiState.isUserDragging) {
+                            job?.cancel()
+                            model.updateUIState { copy(isUserDragging = true) }
+                        }
+                    },
+                    onDragEnd = {
+                        if (uiState.isUserDragging) {
+                            job = Job()
+                            coroutineScope.launch(job) {
+                                delay(5000)
+                                model.updateUIState { copy(isUserDragging = false) }
+                            }
+                        }
+                    },
+                )
             }
         }
 
@@ -119,6 +141,8 @@ fun Panel1() {
             rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
                 hasNotificationPermission.value = it
                 if (it) {
+                    // 设置父容器 canPop 为 false
+                    event.trySend(false)
                     model.handleStartTracking()
                 }
             }
@@ -126,6 +150,8 @@ fun Panel1() {
         /* 开始追踪轨迹 */
         fun handleStart() {
             if (hasNotificationPermission.value) {
+                // 设置父容器 canPop 为 false
+                event.trySend(false)
                 model.handleStartTracking()
             } else {
                 @SuppressLint("ALL")
@@ -140,20 +166,15 @@ fun Panel1() {
 
         /* 退出测量 */
         fun handleExitMeasure() {
-            model.handleExitMeasure()
-        }
-
-
-        val onBackPressedDispatcher =
-            checkNotNull(LocalOnBackPressedDispatcherOwner.current).onBackPressedDispatcher
-        DisposableEffect(Unit) {
-            val onBackPressedCallback = object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-
-                }
-            }
-            onBackPressedDispatcher.addCallback(onBackPressedCallback)
-            onDispose { onBackPressedCallback.remove() }
+            Alert.confirm(
+                view = view,
+                text = "确定要退出测量吗？",
+                onConfirm = {
+                    // 设置父容器 canPop 为 true
+                    event.trySend(true)
+                    model.handleExitMeasure()
+                },
+            )
         }
 
         AndroidView(

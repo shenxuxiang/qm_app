@@ -12,4 +12,5 @@ data class UiState1(
     val measureState: MeasureState = MeasureState.Stop,
     val area: Float = 0f,
     val perimeter: Float = 0f,
+    val isUserDragging: Boolean = false,
 )
