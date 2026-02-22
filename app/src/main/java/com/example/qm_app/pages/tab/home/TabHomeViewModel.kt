@@ -12,7 +12,6 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -66,10 +65,10 @@ class TabHomeViewModel @Inject constructor() : ViewModel() {
         awaitAll(p1, p2)
         _uiState.update { it.copy(isRefreshing = false) }
     }
-
-    init {
-        viewModelScope.launch {
-            handleRefresh()
-        }
-    }
+//
+//    init {
+//        viewModelScope.launch {
+//            handleRefresh()
+//        }
+//    }
 }

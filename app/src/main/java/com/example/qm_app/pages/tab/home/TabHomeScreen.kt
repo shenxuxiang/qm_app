@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -17,9 +18,10 @@ import com.example.qm_app.R
 import com.example.qm_app.components.MenuItemOption
 import com.example.qm_app.components.MenuListBox
 import com.example.qm_app.components.PageScaffold
-import com.example.qm_app.components.PullToRefreshColumn
+import com.example.qm_app.components.PullToRefreshWidget
 import com.example.qm_app.components.Swiper
 import com.example.qm_app.components.loading.Loading
+import com.example.qm_app.components.rememberPullToRefreshState
 import com.example.qm_app.pages.tab.home.components.NewsItemBox
 import com.example.qm_app.router.Route
 import com.example.qm_app.router.Router
@@ -50,22 +52,36 @@ fun TabHomeScreen() {
         val uiState by tabHomeViewModel.uiState.collectAsState()
 
         val listState = rememberLazyListState(
-            initialFirstVisibleItemIndex = 0, // uiState.firstVisibleItemIndex,
-            initialFirstVisibleItemScrollOffset = 0, // uiState.firstVisibleItemScrollOffset,
+            initialFirstVisibleItemIndex = 0,
+            initialFirstVisibleItemScrollOffset = 0,
         )
 
         val coroutineScope = rememberCoroutineScope()
-        PullToRefreshColumn(
-            threshold = 60.dp,
-            modifier = Modifier.padding(paddingValues),
-            isRefreshing = uiState.isRefreshing,
-            onRefresh = {
+        val state =
+            rememberPullToRefreshState(
+                threshold = 60.dp,
+                maxOffset = 200.dp,
+            ) { pullToRefreshState ->
                 coroutineScope.launch {
                     Loading.show()
                     tabHomeViewModel.handleRefresh()
+                    pullToRefreshState.refreshComplete()
                     Loading.hide()
                 }
-            },
+            }
+
+        LaunchedEffect(Unit) {
+            if (uiState.newsList.isEmpty()) {
+                state.refresh()
+            }
+        }
+
+
+
+        PullToRefreshWidget(
+            state = state,
+            lazyListState = listState,
+            modifier = Modifier.padding(paddingValues),
         ) {
             LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
                 item {

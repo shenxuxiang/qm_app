@@ -35,6 +35,7 @@ import com.example.qm_app.components.ButtonGroupOption
 import com.example.qm_app.components.ButtonGroupWidget
 import com.example.qm_app.components.PageScaffold
 import com.example.qm_app.pages.measure_land.components.Panel1
+import com.example.qm_app.pages.measure_land.components.Panel2
 import com.example.qm_app.remember.rememberCompositionLocationPermission
 import com.example.qm_app.router.Router
 import com.example.qm_app.ui.theme.corner6
@@ -161,7 +162,7 @@ fun MeasureLandScreen() {
             ) {
                 when (it) {
                     0 -> Panel1(event = eventChannel, model = model1)
-                    1 -> Text("定点模式")
+                    1 -> Panel2(event = eventChannel)
                     2 -> Text("点选模式")
                 }
             }
