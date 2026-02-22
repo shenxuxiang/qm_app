@@ -137,6 +137,7 @@ class PullToRefreshState(
      * 手动触发刷新
      * */
     fun refresh() {
+        if (isRefreshing) return
         isRefreshing = true
 
         coroutineScope.launch {
