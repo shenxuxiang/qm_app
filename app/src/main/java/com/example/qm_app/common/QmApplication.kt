@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import com.example.qm_app.database.AppDatabase
 import com.example.qm_app.pages.main.MainViewModel
 import dagger.hilt.android.HiltAndroidApp
 
@@ -38,5 +39,9 @@ class QmApplication() : Application() {
     override fun onCreate() {
         super.onCreate()
         context = applicationContext
+        val db = AppDatabase.getInstance(context)
+        val crashHandler = CrashHandler(this, db)
+        crashHandler.uploadCrashLog()
+        Thread.setDefaultUncaughtExceptionHandler(crashHandler)
     }
 }

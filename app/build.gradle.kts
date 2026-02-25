@@ -192,8 +192,9 @@ android {
         }
     }
 }
-
 dependencies {
+    ksp("androidx.room:room-compiler:2.6.1") // 使用 ksp 添加编译器
+
     implementation("androidx.camera:camera-extensions:1.5.2")
     implementation("androidx.camera:camera-effects:1.5.2")
     implementation("androidx.camera:camera-video:1.5.2")
